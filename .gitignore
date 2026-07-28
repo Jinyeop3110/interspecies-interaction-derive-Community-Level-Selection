@@ -1,0 +1,12 @@
+# Processed data comes from Dryad, never from git.
+data/*
+!data/README.md
+
+# Generated panels
+figures/*/panels/*
+!figures/*/panels/.gitkeep
+
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints/

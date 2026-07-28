@@ -1,0 +1,29 @@
+# Release manifest: files copied verbatim from the working repository.
+#
+# Columns: <path in public repo>  TAB  <path in working repository>
+#
+# Only list files that are COPIES. Files authored for the release
+# (src/coalescence/io.py, outcomes.py, decomposition.py, the figure scripts,
+# every README) are not listed here and are edited in place.
+#
+# Run tools/check_sync.py to see whether any copy has drifted from its source.
+
+src/coalescence/lv.py	Figure_generate/code/LV.py
+src/coalescence/species_pool.py	Figure_generate/code/InitializeSpeciesPool.py
+src/coalescence/metrics.py	Figure_generate/code/VariousMetrics.py
+src/coalescence/style.py	Figure_generate/code/COLORMAP.py
+pipeline/02_processing/Main_synthetic.m	Main_synthetic.m
+pipeline/02_processing/Main_natural.m	Main_natural.m
+pipeline/02_processing/PostProcessingSequences_synthetic.m	PostProcessingSequences_synthetic.m
+pipeline/02_processing/PostProcessingSequences_natural.m	PostProcessingSequences_natural.m
+# MetadataGenerator.m and BringSimulationResults.m are NOT listed: both were
+# edited for release to remove hardcoded local paths, so they are no longer
+# verbatim copies. Re-check them by hand if the originals change.
+pipeline/02_processing/RecipeGenerator.m	RecipeGenerator.m
+pipeline/02_processing/CoalescenceRecipe.m	CoalescenceRecipe.m
+pipeline/02_processing/AnalyzeCoalescence_synthetic.m	AnalyzeCoalescence_synthetic.m
+pipeline/02_processing/AnalyzeCoalescence_natural.m	AnalyzeCoalescence_natural.m
+pipeline/02_processing/AnalyzeCoalescence_synthetic_simulations.m	AnalyzeCoalescence_synthetic_simulations.m
+pipeline/02_processing/AnalyzeCommunities_synthetic.m	AnalyzeCommunities_synthetic.m
+pipeline/02_processing/AnalyzeCommunities_natural.m	AnalyzeCommunities_natural.m
+pipeline/02_processing/ExperimentalDataProcessing.m	ExperimentalResult/ExperimentalDataProcessing.m

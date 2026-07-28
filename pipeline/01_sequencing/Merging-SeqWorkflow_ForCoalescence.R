@@ -7,12 +7,24 @@ library(ggplot2); packageVersion("ggplot2")
 library(ShortRead)
 
 
-#miseq_path <- "./isolates_16s_seq_data/2021-10-18_727625_132639_data"
-miseq_path <- "/Users/jysong/Desktop/Gore_lab/Sequencing/Sequencing_data/230322_Fastq_coalescence_sequencing_results/demultiplexed_woNatural"
-#miseq_path <- "/Users/jysong/Desktop/Gore_lab/Sequencing/Sequencing_data/230126_Fastq_coalescence_sequencing_results/test"
-session <- "/testanalysis_woTrim"
-#session <- "/test"
-#miseq_path <- "./isolates_16s_seq_data/12both"
+# ---------------------------------------------------------------------------
+# Set these three paths before running.
+#
+#   miseq_path  directory of demultiplexed paired-end fastq files. Forward and
+#               reverse reads are distinguished by "F" and "R" in the filename.
+#   silva_path  SILVA v138 training set for taxonomic assignment.
+#   session     subdirectory of miseq_path to write the output tables into.
+#
+# Outputs (consumed by pipeline/02_processing): M_OTUtableGreenGenes.csv,
+# M_TAXAtableGreenGenes.csv, M_UniqueSequences.csv.
+#
+# See README.md in this directory for known issues before relying on this
+# script to regenerate the archived tables.
+# ---------------------------------------------------------------------------
+
+miseq_path <- Sys.getenv("COALESCENCE_FASTQ", unset = "./fastq/demultiplexed_woNatural")
+silva_path <- Sys.getenv("COALESCENCE_SILVA", unset = "./silva_nr_v138_train_set.fa")
+session    <- "/testanalysis_woTrim"
 
 list.files(miseq_path)
 
@@ -126,7 +138,7 @@ sum(seqtabMNoC)/sum(seqtabAllM)
 
 # Taxa based on the GreenGenes data, species assigned from the Ribosome Database Project
 #fastaRefTaxa <- "./gg_13_8_train_set_97.fa.gz"
-GreenGenesTaxM <- assignTaxonomy(seqtabMNoC, "/Users/jysong/Desktop/Gore_lab/Sequencing/silva_nr_v138_train_set.fa")
+GreenGenesTaxM <- assignTaxonomy(seqtabMNoC, silva_path)
 
 
 if(!file_test("-d", file.path(miseq_path, session))) dir.create(file.path(miseq_path, session))
