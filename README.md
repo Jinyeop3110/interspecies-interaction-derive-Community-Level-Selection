@@ -50,7 +50,7 @@ the manuscript without opening the SVGs.
 data/                 processed tables (downloaded from Dryad; not in git)
 pipeline/             raw reads -> processed tables
   01_sequencing/      DADA2 amplicon workflow (R)
-  02_processing/      community and coalescence-event tables (MATLAB)
+  02_processing/      community and coalescence-event tables (Python)
   03_simulation/      generalized Lotka-Volterra simulations (Python)
 src/coalescence/      shared analysis library, imported by every figure script
 figures/fig1..fig6/   one directory per main-text figure
@@ -115,13 +115,21 @@ lettering or annotation.
 | Fig. 6c Dominance, natural (Nutr−/Base/Nutr+) | 37% / 70% / 77% | 36.7% / 70.0% / 76.7% |
 | Fig. 4d Dominance, synthetic (Nutr−/Base/Nutr+) | 39% / 65% / 76% | 38.0% / 63.6% / 73.4% |
 | Fig. 4d Mixture, synthetic | 53% / 4% / 6% | 53.3% / 3.4% / 5.3% |
+| Fig. 1e Base (Dominance / Restructuring / Mixture) | 65% / 31% / 4% | 63.6% / 33.0% / 3.4% |
+| Fig. 5b dominant-species abundance | 44 / 51 / 67% | 42.4 / 59.6 / 66.7% |
 
-The natural-community numbers reproduce exactly. The synthetic numbers sit
-within about 3 percentage points because a per-figure quality-control filter
-drops a small number of events (published *n* = 90/83/90 against 92/88/94 from
-the unfiltered tables). That filter is documented in
+The natural-community numbers reproduce exactly. The synthetic outcome
+fractions sit within about 3 percentage points because a per-figure
+quality-control filter drops a small number of events (published *n* = 90/83/90
+against 92/88/94 from the unfiltered tables); that filter is documented in
 [`figures/fig4/README.md`](figures/fig4/README.md) and is not yet part of the
 shared library.
+
+Figure 5b reproduces Nutr− and Nutr+ to within 1.6 percentage points but gives
+59.6% for Base against a published 51%. That gap is confined to one medium and
+is not explained by richness block; see
+[`figures/fig5/README.md`](figures/fig5/README.md). Treat Base in panel 5b as
+unverified.
 
 ## Citing
 

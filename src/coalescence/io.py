@@ -64,6 +64,20 @@ def load_communities(source="synthetic"):
     return _read(f"processed_Communities_{source}.xlsx")
 
 
+def load_metadata():
+    """One row per community: design factors plus OD, pH and growth-curve readings."""
+    return _read("Metadata.xlsx")
+
+
+def load_coalescence_recipe(source="synthetic"):
+    """Which parental communities were mixed to produce each coalesced community."""
+    sheet = 0 if source == "synthetic" else 1
+    path = data_dir() / "CoalescenceRecipe.xlsx"
+    if not path.exists():
+        raise FileNotFoundError(f"{path} not found; see data/README.md")
+    return pd.read_excel(path, sheet_name=sheet)
+
+
 def load_sequences(source="synthetic"):
     """Per-sample relative abundance across ASVs, indexed by ``SampleIDX``.
 
