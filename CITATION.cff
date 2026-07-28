@@ -1,13 +1,18 @@
 cff-version: 1.2.0
 message: "If you use this code, please cite the manuscript below."
-title: "Interspecies interactions drive community-level selection in microbial coalescence"
+title: "Interspecies Interactions Drive Community-Level Selection in Microbial Coalescence"
 abstract: >-
   Analysis and figure-generation code for coalescence experiments and
   generalized Lotka-Volterra simulations of microbial community coalescence.
 authors:
   - family-names: Song
     given-names: Jinyeop
+    affiliation: "Department of Physics, Massachusetts Institute of Technology, Cambridge, MA, USA"
+  - family-names: Hu
+    given-names: Jiliang
+    affiliation: "Department of Physics, Massachusetts Institute of Technology, Cambridge, MA, USA"
   - family-names: Gore
     given-names: Jeff
+    affiliation: "Department of Physics, Massachusetts Institute of Technology, Cambridge, MA, USA"
 license: MIT
 repository-code: "https://github.com/Jinyeop3110/interspecies-interaction-derive-Community-Level-Selection"
