@@ -72,6 +72,11 @@ def decompose(u, v, m):
     community cannot contribute a negative amount of composition, and in
     practice negative values arise only for events already deep in the
     Restructuring region.
+
+    The rescaling puts ``x1``, ``x2`` and the residual on the unit sphere.  The
+    one exception is when both coefficients clip to zero: there is then no
+    direction to rescale, and ``(0, 0, residual)`` is returned unscaled.  Such
+    events carry no parental signal and classify as Restructuring.
     """
     u, v, m = normalize(u), normalize(v), normalize(m)
 

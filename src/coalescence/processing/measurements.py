@@ -30,7 +30,6 @@ __all__ = [
     "READ_RANGE",
     "read_plate_block",
     "reshape_parental_plate",
-    "reshape_coalesced_plate",
     "load_od_correction",
     "attach_measurements",
 ]
@@ -72,11 +71,6 @@ def reshape_parental_plate(block):
                 values[community, replicate] = block[row_offset + replicate, community]
         out[name] = values
     return out
-
-
-def reshape_coalesced_plate(block):
-    """Flatten a coalesced-community plate block, replicate-major."""
-    return block
 
 
 #: Degree-9 polynomial recovered from 1,260 paired raw and corrected readings,
@@ -136,7 +130,10 @@ def correct_od_block(block, correction=None):
     Noise is the mean of all wells within 5% of the plate minimum, matching the
     MATLAB ``Noise=mean(y(y<1.05*min(y(:))))``.
     """
-    correction = correction or load_od_correction()
+    # np.poly1d defines __len__ as the polynomial order, so a degree-0 curve
+    # is falsy. Test against None explicitly or a constant calibration would
+    # be silently discarded.
+    correction = load_od_correction() if correction is None else correction
     noise = np.nanmean(block[block < 1.05 * np.nanmin(block)])
     return correction(block - noise)
 

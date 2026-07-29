@@ -5,8 +5,7 @@ package writes files or draws figures; keep plotting in the figure scripts.
 """
 
 from . import (
-    decomposition, io, lv, metrics, outcomes, processing,
-    selection_correlation, species_pool, style,
+    decomposition, io, lv, outcomes, processing, selection_correlation,
 )
 
 __version__ = "1.0.0"
@@ -15,10 +14,7 @@ __all__ = [
     "decomposition",
     "io",
     "lv",
-    "metrics",
     "outcomes",
     "processing",
     "selection_correlation",
-    "species_pool",
-    "style",
 ]

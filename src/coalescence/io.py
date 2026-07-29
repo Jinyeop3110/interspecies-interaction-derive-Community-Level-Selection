@@ -15,10 +15,14 @@ __all__ = [
     "data_dir",
     "load_coalescence_events",
     "load_communities",
+    "load_metadata",
+    "load_coalescence_recipe",
     "load_sequences",
+    "sample_vector",
     "composition_matrix",
     "MEDIUM_LABELS",
     "MEDIA_ORDER",
+    "EXCLUDED_SAMPLES",
 ]
 
 #: Medium codes as they appear in the processed tables, mapped to the names

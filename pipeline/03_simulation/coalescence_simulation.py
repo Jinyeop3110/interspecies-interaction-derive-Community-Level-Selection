@@ -13,9 +13,9 @@ Species grow logistically and compete pairwise::
 
 with growth rates and carrying capacities fixed to 1 and self-interaction
 ``I_ii = 1``.  Off-diagonal competition coefficients are drawn from
-``U(mu - spread, mu + spread + ...)``; see :func:`uniform_interaction`.  The
-parameter ``mu`` therefore sets both the mean and the spread of competitive
-effects.
+``U(-spread, 2*mu + spread)``, which for the default ``spread = 0`` is
+``U(0, 2*mu)`` as described in the Methods.  The parameter ``mu`` therefore
+sets both the mean and the spread of competitive effects.
 
 Design
 ------

@@ -9,9 +9,6 @@
 # Run tools/check_sync.py to see whether any copy has drifted from its source.
 
 src/coalescence/lv.py	Figure_generate/code/LV.py
-src/coalescence/species_pool.py	Figure_generate/code/InitializeSpeciesPool.py
-src/coalescence/metrics.py	Figure_generate/code/VariousMetrics.py
-src/coalescence/style.py	Figure_generate/code/COLORMAP.py
 pipeline/02_processing/Main_synthetic.m	Main_synthetic.m
 pipeline/02_processing/Main_natural.m	Main_natural.m
 pipeline/02_processing/PostProcessingSequences_synthetic.m	PostProcessingSequences_synthetic.m

@@ -39,6 +39,9 @@ conda activate coalescence
 
 python figures/fig4/make_panels.py     # writes figures/fig4/panels/*.svg
 pytest tests/                          # checks published values still reproduce
+
+# the MATLAB-parity tests additionally need the raw and intermediate tables:
+COALESCENCE_RAW=/path/to/working/tree pytest tests/
 ```
 
 Each figure script prints the quantities it plots, so you can compare against
@@ -50,7 +53,8 @@ the manuscript without opening the SVGs.
 data/                 processed tables (downloaded from Dryad; not in git)
 pipeline/             raw reads -> processed tables
   01_sequencing/      DADA2 amplicon workflow (R)
-  02_processing/      community and coalescence-event tables (Python)
+  02_processing/      community and coalescence-event tables (Python, with
+                      the original MATLAB kept alongside for reference)
   03_simulation/      generalized Lotka-Volterra simulations (seeded, Python)
 src/coalescence/      shared analysis library, imported by every figure script
 figures/fig1..fig6/   one directory per main-text figure

@@ -9,6 +9,7 @@ Run from anywhere:
   python figures/supplementary/make_supp_fig14_od_ph.py
 """
 
+import os
 from pathlib import Path
 import sys
 
@@ -23,10 +24,12 @@ from _common import MEDIUM_COLORS, MM, use_paper_style  # noqa: E402
 from coalescence import io, outcomes  # noqa: E402
 
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-REPO_ROOT = SCRIPT_DIR.parents[1]
-LATEX_DIR = REPO_ROOT.parent / "latex"
-OUT_BASE = LATEX_DIR / "supplementary_figs" / "Fig_R1_1B_OD_vs_PDI"
+#: Panels are written next to the script, like every other figure directory.
+#: Set COALESCENCE_FIGURE_OUT to send them somewhere else.
+OUT_BASE = Path(
+    os.environ.get("COALESCENCE_FIGURE_OUT",
+                   Path(__file__).resolve().parent / "panels")
+) / "supp_fig14_od_vs_ph"
 
 
 def format_p(value):
