@@ -15,7 +15,7 @@ Each figure directory has its own README recording which panels it generates,
 which inputs they read, and how the output compares with the published figure.
 Panels are written to `panels/` inside each directory and are not tracked.
 
-Scripts emit **individual panels as SVG**. The composed figures in the
+Scripts emit **individual panels as PDF**. The composed figures in the
 manuscript were assembled from these panels in a vector editor, so a panel
 matches its published counterpart in content and scaling but not in layout,
 lettering or annotation.

@@ -5,10 +5,10 @@ not covered; their generating code exists but has not been prepared for release.
 
 | Figure | Content | Script |
 |---|---|---|
-| 14 | Parental OD difference vs PDI, and parental endpoint OD vs endpoint pH | `make_supp_fig14_od_ph.py` |
+| 14 | Parental OD difference vs PDI, and parental endpoint OD vs endpoint pH | `generate_figure.py` |
 
 ```bash
-python pipeline/04_figure_generation/supplementary/make_supp_fig14_od_ph.py
+python pipeline/04_figure_generation/supplementary/generate_figure.py
 ```
 
 Panels are written to `panels/`, like every other figure directory.
@@ -20,7 +20,7 @@ asset, point it there explicitly:
 
 ```bash
 COALESCENCE_FIGURE_OUT=../../../latex/supplementary_figs \
-    python pipeline/04_figure_generation/supplementary/make_supp_fig14_od_ph.py
+    python pipeline/04_figure_generation/supplementary/generate_figure.py
 ```
 
 The output basename is `supp_fig14_od_vs_ph`; the manuscript includes

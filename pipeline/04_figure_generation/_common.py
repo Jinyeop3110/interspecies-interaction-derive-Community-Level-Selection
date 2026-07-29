@@ -112,8 +112,12 @@ def panel_dir():
 
 
 def save(fig, name):
-    """Write one panel as SVG and report where it went."""
-    path = panel_dir() / f"{name}.svg"
+    """Write one panel as PDF and report where it went.
+
+    PDF keeps the panel as vector art with editable text (``pdf.fonttype`` is
+    42), which is what the figure-assembly step needs.
+    """
+    path = panel_dir() / f"{name}.pdf"
     fig.savefig(path, bbox_inches="tight")
     plt.close(fig)
     print(f"  wrote {path.relative_to(REPO_ROOT)}")

@@ -146,7 +146,7 @@ def plot():
             ax.set_ylabel("Endpoint pH")
 
     fig.subplots_adjust(left=0.08, right=0.99, top=0.91, bottom=0.14, wspace=0.28, hspace=0.36)
-    for suffix in [".pdf", ".svg"]:
+    for suffix in [".pdf"]:
         out = OUT_BASE.with_suffix(suffix)
         out.parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(out, bbox_inches="tight")
