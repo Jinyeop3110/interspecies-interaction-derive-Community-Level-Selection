@@ -117,13 +117,6 @@ raw_lookup = {
 
 # Quality-control exclusions; single definition in coalescence.io.
 exception_list = set(_io.EXCLUDED_SAMPLES)
-_unused_exception_list = set(
-    ["P4-02", "P4-03", "P4-23", "P4-24", "P7-97", "P8-12"]
-    + ["P8-91"]
-    + ["P5-73", "P5-69", "P5-64", "P5-61", "P5-59", "P5-56"]
-    + ["P5-47", "P5-50"]
-    + ["P5-39", "P5-87", "P5-54", "P6-02", "P6-47", "P6-74", "P6-57"]
-)
 
 
 # ---------------------------------------------------------------------------

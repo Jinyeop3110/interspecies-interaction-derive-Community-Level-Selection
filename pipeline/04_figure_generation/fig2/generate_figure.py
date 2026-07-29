@@ -9,7 +9,7 @@ Generates:
 Everything here is simulated, so this script runs the model rather than reading
 archived data. Expect a few minutes at the default replicate count.
 
-    python figures/fig2/make_panels.py --replicates 300
+    python pipeline/04_figure_generation/fig2/generate_figure.py --replicates 300
 """
 
 import argparse
@@ -25,8 +25,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "03_simulation"))
 
 import matplotlib.pyplot as plt  # noqa: E402
 from _common import (  # noqa: E402
-    MM, OUTCOME_COLORS, SWAPPED_ALPHA, SWAPPED_COLOR,
-    draw_similarity_boundaries, save, use_paper_style,
+    MM, OUTCOME_COLORS, draw_similarity_boundaries, save, use_paper_style,
 )  # noqa: E402
 
 from coalescence.decomposition import classify, decompose, retention_and_asymmetry  # noqa: E402
@@ -86,7 +85,7 @@ def panel_b(events):
         ax.scatter(selection[:, 0], selection[:, 1], s=5, linewidths=0,
                    color=OUTCOME_COLORS[name], label=name, alpha=0.7)
 
-        draw_similarity_boundaries(ax)
+    draw_similarity_boundaries(ax)
 
     ax.set_xlabel("similarity to parent A")
     ax.set_ylabel("similarity to parent B")
@@ -101,7 +100,7 @@ def panel_c(before, after):
     Competitive exclusion removes strongly competing species during assembly,
     so the surviving set interacts more weakly than the community as seeded.
 
-    Drawn as a jittered strip plot with an open square for the mean and s.e.m.,
+    Drawn as a jittered strip plot with a filled square for the mean and s.e.m.,
     matching the published panel, rather than connecting lines.
     """
     t_statistic, p_value = stats.ttest_rel(before, after)
@@ -118,7 +117,7 @@ def panel_c(before, after):
                    edgecolors="none")
         ax.errorbar(position, values.mean(),
                     yerr=values.std(ddof=1) / np.sqrt(len(values)),
-                    fmt="s", markersize=12, markerfacecolor="white",
+                    fmt="s", markersize=12, color=colour,
                     markeredgecolor="black", markeredgewidth=0.5,
                     ecolor="black", capsize=5, capthick=1.5, linewidth=1.5,
                     zorder=10)
@@ -178,7 +177,7 @@ def panel_d(events):
                alpha=0.7, zorder=5)
 
     ax.set_xlim(-0.5, 1.5)
-    ax.set_ylim(-0.8, 0.8)
+    ax.set_ylim(-0.2, 0.6)
     ax.set_xticks([0, 1])
     ax.set_xticklabels(["Same\nParent", "Cross\nParents"])
     ax.yaxis.set_major_locator(MultipleLocator(0.2))

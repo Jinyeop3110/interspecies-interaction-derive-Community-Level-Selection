@@ -42,9 +42,11 @@ Exact, with the quality-control exclusions applied (the default).
 Grey points are the same events with the two parental labels swapped; the map
 has no intrinsic parent ordering.
 
-Not yet matched to the published panel: the richness-coded marker shapes
-(circles for 6-species pools, squares for 12, triangles for 24) described in
-the caption are not encoded here — all events are drawn with one marker.
+Marker shape encodes the initial species-pool size as the caption specifies —
+circles for 6 species, squares for 12, triangles for 24 — with marker opacity
+deepening with pool size, and the map frame carries the published furniture:
+faint reference arcs, dashed inner and outer arcs, dashed Dominance/Mixture
+rays between them, and dashed axis lines.
 
 ## Source
 

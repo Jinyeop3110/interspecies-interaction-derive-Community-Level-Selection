@@ -8,7 +8,7 @@ Generates:
 Everything here is simulated, so this script runs the model. The sweep is the
 expensive part; expect several minutes.
 
-    python figures/fig3/make_panels.py --replicates 200
+    python pipeline/04_figure_generation/fig3/generate_figure.py --replicates 200
 """
 
 import argparse
@@ -83,11 +83,15 @@ def panel_b(table):
     fig, ax = plt.subplots(figsize=(60 * MM, 60 * MM), facecolor="w", edgecolor="k")
     mu_values = fractions.index.to_numpy(dtype=float)
 
-    bottom = np.zeros(len(mu_values))
+    # step="post" holds each value until the next x, so append a trailing
+    # point or the final mu band is never drawn.
+    step = mu_values[-1] - mu_values[-2]
+    x = np.append(mu_values, mu_values[-1] + step)
+    bottom = np.zeros(len(x))
     midpoint = len(mu_values) // 2
     for name in ("Dominance", "Mixture", "Restructuring"):
-        values = fractions[name].to_numpy(dtype=float)
-        ax.fill_between(mu_values, bottom, bottom + values, step="post",
+        values = np.append(fractions[name].to_numpy(dtype=float), 0.0)
+        ax.fill_between(x, bottom, bottom + values, step="post",
                         color=OUTCOME_COLORS[name], alpha=0.85, linewidth=0)
         if values[midpoint] > 0.08:
             ax.text(mu_values[midpoint], bottom[midpoint] + values[midpoint] / 2,
@@ -101,7 +105,7 @@ def panel_b(table):
 
     ax.set_xlabel(r"Interaction Strength $\mu$")
     ax.set_ylabel("Fraction")
-    ax.set_xlim(mu_values.min(), mu_values.max())
+    ax.set_xlim(mu_values.min(), mu_values.max() + step)
     ax.set_ylim(0, 1)
     ax.set_yticks([0, 1])
     ax.set_yticklabels(["0", "1"])

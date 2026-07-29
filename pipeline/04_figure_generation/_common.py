@@ -1,6 +1,6 @@
 """Shared setup for the figure scripts.
 
-Import this first in every ``make_panels.py``; it puts ``src/`` on the path so
+Import this first in every ``generate_figure.py``; it puts ``src/`` on the path so
 the scripts run from their own directory without installation.
 """
 
@@ -41,6 +41,9 @@ SWAPPED_ALPHA = 0.2
 #: specify.
 POOL_MARKERS = {6: "o", 12: "s", 24: "^"}
 
+#: Marker alpha deepens with pool size in the published panels.
+POOL_ALPHAS = (0.5, 0.7, 0.9)
+
 #: Outcome classes bottom to top in the stacked fraction panels.
 OUTCOME_ORDER = ["Dominance", "Mixture", "Restructuring"]
 
@@ -74,38 +77,47 @@ def use_paper_style():
     )
 
 
-def draw_similarity_boundaries(ax, limit=1.02):
-    """Draw the two-parent similarity map frame.
+def draw_similarity_boundaries(ax, limit=1.05):
+    """Draw the two-parent similarity map frame, as the published panels have it.
 
-    The published maps carry a solid outer arc at r = 1, a dashed inner arc at
-    the Restructuring boundary r = 1/sqrt(2), dashed radial rays at pi/8 and
-    3pi/8 marking the Dominance/Mixture boundaries, and solid axis lines. All
-    four spines are hidden; the arcs are the frame.
+    Four elements, matching Fig. 1e / 4c / 6b:
 
-    Ported from ``draw_similarity_boundaries`` in the working tree so every
-    map panel in the repository is drawn the same way.
+    * faint grey reference arcs at r = 0.25, 0.5, 0.75, 1.0;
+    * a dashed outer arc at r = 1 and a dashed inner arc at the Restructuring
+      boundary r = 1/sqrt(2);
+    * dashed radial rays at pi/8 and 3pi/8 separating Dominance from Mixture,
+      drawn only between the two arcs rather than from the origin;
+    * dashed lines along x = 0 and y = 0.
+
+    All spines are hidden -- the arcs are the frame.
     """
     theta = np.linspace(0, np.pi / 2, 300)
 
-    ax.plot(np.cos(theta), np.sin(theta), color="black", linewidth=1.5)
+    # Faint reference arcs underneath everything.
+    for radius in (0.25, 0.5, 0.75, 1.0):
+        ax.plot(radius * np.cos(theta), radius * np.sin(theta),
+                color="grey", alpha=0.2, linewidth=0.5, zorder=0)
 
-    radius = np.sqrt(0.5)
-    ax.plot(radius * np.cos(theta), radius * np.sin(theta),
-            color="black", linewidth=0.8, linestyle=(0, (4, 4)))
+    inner = np.sqrt(0.5)
+    dashed = dict(color="black", linewidth=0.8, linestyle=(0, (4, 4)), zorder=3)
+    ax.plot(np.cos(theta), np.sin(theta), **dashed)
+    ax.plot(inner * np.cos(theta), inner * np.sin(theta), **dashed)
 
+    # Dominance/Mixture boundaries, between the two arcs only.
     for angle in (np.pi / 8, 3 * np.pi / 8):
-        ax.plot([0, np.cos(angle)], [0, np.sin(angle)],
-                color="black", linewidth=0.8, linestyle=(0, (4, 4)))
+        ax.plot([inner * np.cos(angle), np.cos(angle)],
+                [inner * np.sin(angle), np.sin(angle)], **dashed)
 
-    ax.plot([0, 0], [0, 1], color="black", linewidth=1.0)
-    ax.plot([0, 1], [0, 0], color="black", linewidth=1.0)
+    ax.axhline(0, color="black", linewidth=0.8, linestyle="--", zorder=3)
+    ax.axvline(0, color="black", linewidth=0.8, linestyle="--", zorder=3)
 
-    ax.set_xlim(0, limit)
-    ax.set_ylim(0, limit)
+    ax.set_xlim(-0.05, limit)
+    ax.set_ylim(-0.05, limit)
     ax.set_aspect("equal")
     ax.set_xticks([0, 0.5, 1])
     ax.set_yticks([0, 0.5, 1])
-    ax.tick_params(length=0, pad=1)
+    ax.set_xticklabels(["0.0", "0.5", "1.0"])
+    ax.set_yticklabels(["0.0", "0.5", "1.0"])
     for spine in ax.spines.values():
         spine.set_visible(False)
 
@@ -139,8 +151,6 @@ def stacked_outcome_bar(ax, table, annotate=None, width=0.6):
     not grouped bars. ``annotate`` may be ``"count"`` or ``"percent"`` to label
     each band.
     """
-    import numpy as _np
-
     codes = {"Dominance": 0, "Mixture": 1, "Restructuring": 2}
     total = len(table)
     bottom = 0.0
@@ -150,18 +160,20 @@ def stacked_outcome_bar(ax, table, annotate=None, width=0.6):
         ax.bar(0, fraction, bottom=bottom, width=width,
                color=OUTCOME_COLORS[name], alpha=0.85, linewidth=0)
         if annotate and fraction > 0.03:
-            label = f"{name[0]} (n={n})" if annotate == "count" else f"{fraction:.0%}"
-            ax.text(0, bottom + fraction / 2, label, ha="center", va="center",
-                    fontsize=6, style="italic")
+            if annotate == "count":
+                ax.text(0, bottom + fraction / 2, f"$\\it{{{name[0]}}}$\n(n={n})",
+                        ha="center", va="center", fontsize=7, linespacing=1.4)
+            else:
+                ax.text(0, bottom + fraction / 2, f"{fraction:.0%}",
+                        ha="center", va="center", fontsize=6)
         bottom += fraction
 
-    ax.set_xlim(-0.5, 0.5)
+    ax.set_xlim(-width / 2, width / 2)
     ax.set_ylim(0, 1)
     ax.set_xticks([])
-    ax.set_yticks([0, 1])
-    ax.set_yticklabels(["0", "1"])
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
+    ax.set_yticks([])
+    for spine in ax.spines.values():
+        spine.set_visible(False)
 
 
 def stacked_outcome_series(ax, fractions, separators=True, annotate=True):

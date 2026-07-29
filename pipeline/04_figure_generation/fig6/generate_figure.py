@@ -5,7 +5,7 @@ Generates:
   6b  similarity map per medium, with the parental-label-swapped counterpart
   6c  fraction of Dominance outcomes across the nutrient gradient
 
-Run from anywhere:  python figures/fig6/make_panels.py
+    python pipeline/04_figure_generation/fig6/generate_figure.py
 """
 
 import sys
@@ -54,7 +54,7 @@ def panel_c(fractions):
     style as Fig. 4d -- not a Dominance-only series.
     """
     fig, ax = plt.subplots(figsize=(60 * MM, 60 * MM), facecolor="w", edgecolor="k")
-    stacked_outcome_series(ax, fractions)
+    stacked_outcome_series(ax, fractions, annotate=False)
     ax.set_xlabel("Media")
     ax.set_ylabel("Coalescence outcome fraction")
     return save(fig, "fig6c_outcome_fractions")

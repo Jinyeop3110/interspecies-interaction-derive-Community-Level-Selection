@@ -6,7 +6,7 @@ top row, signed parental OD difference versus PDI; bottom row,
 parental-community endpoint OD versus endpoint pH.
 
 Run from anywhere:
-  python figures/supplementary/make_supp_fig14_od_ph.py
+  python pipeline/04_figure_generation/supplementary/generate_figure.py
 """
 
 import os

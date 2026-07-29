@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import matplotlib.pyplot as plt  # noqa: E402
 from _common import (  # noqa: E402
-    MEDIUM_COLORS, MM, POOL_MARKERS, SWAPPED_ALPHA, SWAPPED_COLOR,
+    MEDIUM_COLORS, MM, POOL_ALPHAS, POOL_MARKERS, SWAPPED_ALPHA, SWAPPED_COLOR,
     draw_similarity_boundaries, save, stacked_outcome_bar, use_paper_style,
 )
 
@@ -43,24 +43,28 @@ def panel_e_map(table):
     """
     fig, ax = plt.subplots(figsize=(60 * MM, 60 * MM), facecolor="w", edgecolor="k")
 
-    for pool, marker in POOL_MARKERS.items():
+    # Alpha deepens with pool size, as in the published panel.
+    for (pool, marker), alpha in zip(POOL_MARKERS.items(), POOL_ALPHAS):
         group = table[table.pool == pool]
         if group.empty:
             continue
         ax.scatter(group.x1, group.x2, s=25, marker=marker,
-                   color=MEDIUM_COLORS["Base"], alpha=0.7, linewidths=0,
-                   label=f"Pool {pool}")
+                   color=MEDIUM_COLORS["Base"], alpha=alpha, linewidths=0,
+                   label=f"Pool {pool}", zorder=2)
     for pool, marker in POOL_MARKERS.items():
         group = table[table.pool == pool]
         if group.empty:
             continue
         ax.scatter(group.x2, group.x1, s=25, marker=marker,
-                   color=SWAPPED_COLOR, alpha=SWAPPED_ALPHA, linewidths=0)
+                   color=SWAPPED_COLOR, alpha=SWAPPED_ALPHA, linewidths=0,
+                   zorder=1)
 
     draw_similarity_boundaries(ax)
     ax.set_xlabel("Similarity(C,A)")
     ax.set_ylabel("Similarity(C,B)")
-    ax.legend(loc="upper right", fontsize=6, frameon=False)
+    ax.set_title("Coalescence Outcomes", fontsize=8)
+    ax.legend(loc="upper right", fontsize=6, frameon=True,
+              framealpha=1.0, edgecolor="0.7")
     return save(fig, "fig1e_similarity_map")
 
 
@@ -68,7 +72,6 @@ def panel_e_bar(table):
     """Stacked outcome bar for the Base medium, annotated with counts."""
     fig, ax = plt.subplots(figsize=(22 * MM, 60 * MM), facecolor="w", edgecolor="k")
     stacked_outcome_bar(ax, table, annotate="count")
-    ax.set_ylabel("Coalescence outcome fraction")
     return save(fig, "fig1e_outcome_fractions")
 
 

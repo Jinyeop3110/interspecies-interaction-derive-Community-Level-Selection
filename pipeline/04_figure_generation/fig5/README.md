@@ -25,27 +25,27 @@ python pipeline/04_figure_generation/fig5/generate_figure.py
 
 ## Panel b: reproduction
 
-The dominant species is the most abundant species in a stabilized parental
-community. The two replicates of each community are averaged before taking the
-mean across communities, so the unit of replication is the community (n = 30 per
-medium) rather than the individual culture.
+Exact.
 
 | | Published | This code |
 |---|---|---|
-| Nutr− | 44 ± 2% | 42.4 ± 2.0% |
-| Base | 51 ± 5% | 59.6 ± 4.1% |
-| Nutr+ | 67 ± 4% | 66.7 ± 3.1% |
+| Nutr− | 44 ± 2% | 43.8 ± 2.1% |
+| Base | 51 ± 5% | 51.1 ± 5.1% |
+| Nutr+ | 67 ± 4% | 66.9 ± 4.2% |
+| *n* | — | 18 / 17 / 18 |
 
-Replicate-averaging reproduces the published standard errors closely, and Nutr−
-and Nutr+ agree to within 1.6 percentage points. **Base does not**: this code
-gives 59.6% against a published 51%.
+Two selection choices matter, and both were wrong in an earlier version of this
+script:
 
-The discrepancy is confined to Base and is not explained by richness block
-(6-species parental communities average 71.8% in Base against 53.6% and 55.0%
-for the 12- and 24-species blocks; excluding any one block does not close the
-gap while keeping the other two media correct). It is most likely a
-medium-specific exclusion applied in the original notebook. Treat panel b for
-Base as unverified until that selection rule is recovered.
+- the panel covers the **12-species parental communities only**, not all three
+  richness classes;
+- the mean is taken over individual cultures, not over communities after
+  averaging their replicates.
+
+Pooling all richness classes and averaging within communities gives 42.4 / 59.6
+/ 66.7% — the Base value drifts about nine points while the other two barely
+move, which is what made the discrepancy look medium-specific rather than
+structural.
 
 ## Panel c: blocker
 

@@ -7,7 +7,7 @@ Generates:
 Panel 5c is not generated here; it needs the pairwise invasion assay results,
 which are not part of the archived data. See README.md.
 
-Run from anywhere:  python figures/fig5/make_panels.py
+    python pipeline/04_figure_generation/fig5/generate_figure.py
 """
 
 import sys
@@ -35,14 +35,23 @@ def dominant_species_fraction(sequences, columns, sample_idx):
     return values.max() / total if total > 0 else np.nan
 
 
-def dominant_fraction_by_medium(metadata, sequences):
-    """Mean dominant-species fraction per medium, over parental communities.
+#: Parental community index range for the 12-species richness class. The
+#: published panel is restricted to this class.
+POOL_12_RANGE = (9, 18)
 
-    The two replicates of each parental community are averaged before taking
-    the mean across communities, so the unit of replication is the community
-    (n = 30 per medium) rather than the individual culture.
+
+def dominant_fraction_by_medium(metadata, sequences):
+    """Mean dominant-species fraction per medium.
+
+    Restricted to the **12-species parental communities**, and averaged over
+    individual cultures rather than over communities, matching
+    ``Community_PermutateList("F", "S", medium, "S", 12, -1)`` followed by a
+    flat mean and standard error in the original script. Both choices matter:
+    pooling all three richness classes, or averaging replicates within a
+    community first, shifts the Base value by about nine percentage points.
     """
     columns = io.composition_matrix(sequences)
+    low, high = POOL_12_RANGE
     rows, values = {}, {}
 
     for medium in io.MEDIA_ORDER:
@@ -52,18 +61,23 @@ def dominant_fraction_by_medium(metadata, sequences):
             & (metadata.Medium == medium)
             & (metadata.CoalescenceType == "S")
         ].copy()
-        selection["fraction"] = [
+        selection = selection[~selection.SampleIDX.astype(str).isin(io.EXCLUDED_SAMPLES)]
+
+        community_index = selection.CommunityIDX.astype(int)
+        selection = selection[(community_index > low) & (community_index <= high)]
+
+        fractions = np.array([
             dominant_species_fraction(sequences, columns, str(s))
             for s in selection.SampleIDX
-        ]
+        ])
+        fractions = fractions[np.isfinite(fractions)]
 
-        by_community = selection.groupby("CommunityIDX")["fraction"].mean().dropna()
         rows[io.MEDIUM_LABELS[medium]] = {
-            "mean": by_community.mean(),
-            "sem": by_community.std(ddof=1) / np.sqrt(len(by_community)),
-            "n": len(by_community),
+            "mean": fractions.mean(),
+            "sem": fractions.std() / np.sqrt(len(fractions)),
+            "n": len(fractions),
         }
-        values[io.MEDIUM_LABELS[medium]] = by_community.to_numpy()
+        values[io.MEDIUM_LABELS[medium]] = fractions
 
     return pd.DataFrame(rows).T, values
 

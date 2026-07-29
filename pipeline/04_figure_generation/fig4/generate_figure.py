@@ -5,7 +5,7 @@ Generates:
   4c  similarity map per medium, with the parental-label-swapped counterpart
   4d  outcome fractions across the nutrient gradient
 
-Run from anywhere:  python figures/fig4/make_panels.py
+    python pipeline/04_figure_generation/fig4/generate_figure.py
 """
 
 import numpy as np
