@@ -28,6 +28,24 @@ MEDIUM_LABELS = {"L": "Nutr-", "M": "Base", "H": "Nutr+"}
 #: Canonical left-to-right ordering along the nutrient gradient.
 MEDIA_ORDER = ["L", "M", "H"]
 
+#: Samples excluded from the analysis on quality-control grounds.
+#:
+#: Wells whose culture or sequencing failed, identified during the experiment
+#: and applied uniformly across every figure.  Plates 4, 5 and 6 hold the
+#: coalesced communities in Nutr-, Base and Nutr+ respectively; plate 7 the
+#: natural coalesced communities; plate 8 Base parental communities.
+#:
+#: Applying this list is what makes the outcome fractions match the published
+#: values exactly (n = 90/83/90 for Nutr-/Base/Nutr+).
+EXCLUDED_SAMPLES = frozenset([
+    "P4-02", "P4-03", "P4-23", "P4-24",
+    "P5-39", "P5-47", "P5-50", "P5-54", "P5-56", "P5-59",
+    "P5-61", "P5-64", "P5-69", "P5-73", "P5-87",
+    "P6-02", "P6-47", "P6-57", "P6-74",
+    "P7-97",
+    "P8-12", "P8-91",
+])
+
 _DEFAULT_DIR = Path(__file__).resolve().parents[2] / "data"
 
 

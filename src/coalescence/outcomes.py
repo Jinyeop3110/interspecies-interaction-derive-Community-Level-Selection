@@ -9,7 +9,7 @@ from .decomposition import classify, decompose, retention_and_asymmetry
 __all__ = ["outcome_table", "outcome_fractions"]
 
 
-def outcome_table(source="synthetic"):
+def outcome_table(source="synthetic", apply_exclusions=True):
     """Classify every coalescence event in one experimental dataset.
 
     Returns a frame with one row per usable event and the columns
@@ -18,6 +18,11 @@ def outcome_table(source="synthetic"):
 
     Events are skipped when the coalesced community or either parent is
     missing from the sequence table or carries no assigned reads.
+
+    ``apply_exclusions`` drops events involving a sample in
+    ``io.EXCLUDED_SAMPLES``, the quality-control list used throughout the
+    paper.  Leave it on to reproduce published values; turn it off to see the
+    unfiltered data.
     """
     events = io.load_coalescence_events(source)
     sequences = io.load_sequences(source)
@@ -25,6 +30,12 @@ def outcome_table(source="synthetic"):
 
     rows = []
     for _, event in events.iterrows():
+        if apply_exclusions and not {
+            str(event.SampleIDX),
+            str(event.SampleIDX_Sub1),
+            str(event.SampleIDX_Sub2),
+        }.isdisjoint(io.EXCLUDED_SAMPLES):
+            continue
         m = io.sample_vector(sequences, columns, event.SampleIDX)
         u = io.sample_vector(sequences, columns, event.SampleIDX_Sub1)
         v = io.sample_vector(sequences, columns, event.SampleIDX_Sub2)

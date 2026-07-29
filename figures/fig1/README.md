@@ -44,13 +44,14 @@ contrast cleanly:
 
 ## Panels e and f: reproduction
 
-Base medium, n = 88: Dominance 63.6%, Mixture 3.4%, Restructuring 33.0%.
+Exact, with the quality-control exclusions applied (the default).
 
-Published: n = 83, Dominance 65%, Restructuring 31%, Mixture 4%.
-
-The five-event gap is the same quality-control filter discussed in
-[`../fig4/README.md`](../fig4/README.md), which is not yet part of the shared
-library. Fractions agree to within about 2 percentage points.
+| | Published | This code |
+|---|---|---|
+| Base *n* | 83 | 83 |
+| Dominance | 65% | 65.1% |
+| Restructuring | 31% | 31.3% |
+| Mixture | 4% | 3.6% |
 
 Grey points in panel e are the same events with the two parental labels
 swapped; the map has no intrinsic parent ordering.

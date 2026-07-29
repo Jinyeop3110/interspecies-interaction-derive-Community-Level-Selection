@@ -15,14 +15,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from coalescence import io, outcomes  # noqa: E402
 
-# Fig. 4d, main text.  Tolerance is 3 percentage points: a small number of
-# events are excluded by the per-figure QC filter that is applied inside the
-# figure scripts rather than in the shared library, so fractions computed from
-# the unfiltered tables land close to, but not exactly on, the published
-# values.  See figures/fig4/README.md.
+# Fig. 4d, main text.  With the quality-control exclusions applied (the default
+# in outcome_table) these reproduce the published values exactly to the
+# rounding printed in the manuscript, so the tolerance only absorbs that
+# rounding.
 PUBLISHED_DOMINANCE = {"Nutr-": 0.39, "Base": 0.65, "Nutr+": 0.76}
 PUBLISHED_MIXTURE = {"Nutr-": 0.53, "Base": 0.04, "Nutr+": 0.06}
-TOLERANCE = 0.03
+PUBLISHED_N = {"Nutr-": 90, "Base": 83, "Nutr+": 90}
+TOLERANCE = 0.005
 
 
 @pytest.fixture(scope="module")
@@ -46,6 +46,12 @@ def test_mixture_fraction(fractions, medium):
     assert fractions.loc[medium, "Mixture"] == pytest.approx(
         PUBLISHED_MIXTURE[medium], abs=TOLERANCE
     )
+
+
+@pytest.mark.parametrize("medium", list(PUBLISHED_N))
+def test_event_count(fractions, medium):
+    """The quality-control exclusions should give exactly the published n."""
+    assert int(fractions.loc[medium, "n"]) == PUBLISHED_N[medium]
 
 
 def test_dominance_increases_along_nutrient_gradient(fractions):

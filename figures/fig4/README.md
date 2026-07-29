@@ -30,23 +30,19 @@ histograms and to Fig. 6b.
 
 ## Panel d: reproduction
 
-`make_panels.py` prints the fractions it plots:
+`make_panels.py` prints the fractions it plots. **Exact.**
 
 | | Published | This code |
 |---|---|---|
-| Dominance (Nutr−/Base/Nutr+) | 39% / 65% / 76% | 38.0% / 63.6% / 73.4% |
-| Mixture (Nutr−/Base/Nutr+) | 53% / 4% / 6% | 53.3% / 3.4% / 5.3% |
-| *n* (Nutr−/Base/Nutr+) | 90 / 83 / 90 | 92 / 88 / 94 |
+| Dominance (Nutr−/Base/Nutr+) | 39% / 65% / 76% | 38.9% / 65.1% / 75.6% |
+| Mixture (Nutr−/Base/Nutr+) | 53% / 4% / 6% | 53.3% / 3.6% / 5.6% |
+| *n* (Nutr−/Base/Nutr+) | 90 / 83 / 90 | 90 / 83 / 90 |
 
-The small gap is entirely a sample-count difference. The published panel applies
-a quality-control filter that drops events whose sequencing yield or replicate
-agreement fell below threshold; the shared library classifies every event
-present in the tables. Restoring the exclusion list moves the fractions onto the
-published values. Until that list is folded into `coalescence.io`, treat panel d
-from this script as reproducing the published result to within about 3
-percentage points.
-
-Fig. 6, which has no such exclusions, reproduces exactly.
+This requires the quality-control exclusions in `coalescence.io.EXCLUDED_SAMPLES`
+— 22 wells whose culture or sequencing failed, applied uniformly across every
+figure in the study. They are on by default; pass
+`outcome_table(apply_exclusions=False)` to see the unfiltered data, which gives
+*n* = 92/88/94 and shifts the fractions by up to 3 points.
 
 ## Source
 

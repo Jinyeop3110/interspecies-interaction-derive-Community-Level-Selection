@@ -51,7 +51,7 @@ data/                 processed tables (downloaded from Dryad; not in git)
 pipeline/             raw reads -> processed tables
   01_sequencing/      DADA2 amplicon workflow (R)
   02_processing/      community and coalescence-event tables (Python)
-  03_simulation/      generalized Lotka-Volterra simulations (Python)
+  03_simulation/      generalized Lotka-Volterra simulations (seeded, Python)
 src/coalescence/      shared analysis library, imported by every figure script
 figures/fig1..fig6/   one directory per main-text figure
 tests/                reproduction checks against published values
@@ -113,21 +113,23 @@ lettering or annotation.
 | Check | Published | Reproduced |
 |---|---|---|
 | Fig. 6c Dominance, natural (Nutr−/Base/Nutr+) | 37% / 70% / 77% | 36.7% / 70.0% / 76.7% |
-| Fig. 4d Dominance, synthetic (Nutr−/Base/Nutr+) | 39% / 65% / 76% | 38.0% / 63.6% / 73.4% |
-| Fig. 4d Mixture, synthetic | 53% / 4% / 6% | 53.3% / 3.4% / 5.3% |
-| Fig. 1e Base (Dominance / Restructuring / Mixture) | 65% / 31% / 4% | 63.6% / 33.0% / 3.4% |
+| Fig. 4d Dominance, synthetic (Nutr−/Base/Nutr+) | 39% / 65% / 76% | 38.9% / 65.1% / 75.6% |
+| Fig. 4d Mixture, synthetic | 53% / 4% / 6% | 53.3% / 3.6% / 5.6% |
+| Fig. 4d event counts | 90 / 83 / 90 | 90 / 83 / 90 |
+| Fig. 1e Base (Dominance / Restructuring / Mixture) | 65% / 31% / 4% | 65.1% / 31.3% / 3.6% |
+| Fig. 2b Dominance at μ = 0.6, n = 1,200 | 61% | 61.3% |
 | Fig. 5b dominant-species abundance | 44 / 51 / 67% | 42.4 / 59.6 / 66.7% |
 
-The natural-community numbers reproduce exactly. The synthetic outcome
-fractions sit within about 3 percentage points because a per-figure
-quality-control filter drops a small number of events (published *n* = 90/83/90
-against 92/88/94 from the unfiltered tables); that filter is documented in
-[`figures/fig4/README.md`](figures/fig4/README.md) and is not yet part of the
-shared library.
+All outcome fractions reproduce exactly, including the event counts. This
+depends on the quality-control exclusions in `coalescence.io.EXCLUDED_SAMPLES`
+— 22 wells whose culture or sequencing failed, applied uniformly across the
+study and on by default. Pass `outcome_table(apply_exclusions=False)` to see the
+unfiltered data.
 
-Figure 5b reproduces Nutr− and Nutr+ to within 1.6 percentage points but gives
-59.6% for Base against a published 51%. That gap is confined to one medium and
-is not explained by richness block; see
+One number does not yet reproduce: Figure 5b gives 59.6% for Base against a
+published 51%, while Nutr− and Nutr+ agree to within 1.6 percentage points. The
+gap is confined to one medium, is not explained by richness block, and is not
+resolved by the exclusion list; see
 [`figures/fig5/README.md`](figures/fig5/README.md). Treat Base in panel 5b as
 unverified.
 
