@@ -20,10 +20,13 @@ import numpy as np
 from scipy import stats
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "03_simulation"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "03_simulation"))
 
 import matplotlib.pyplot as plt  # noqa: E402
-from _common import MM, OUTCOME_COLORS, save, use_paper_style  # noqa: E402
+from _common import (  # noqa: E402
+    MM, OUTCOME_COLORS, SWAPPED_ALPHA, SWAPPED_COLOR,
+    draw_similarity_boundaries, save, use_paper_style,
+)  # noqa: E402
 
 from coalescence.decomposition import classify, decompose, retention_and_asymmetry  # noqa: E402
 from coalescence.selection_correlation import selection_correlation  # noqa: E402
@@ -80,17 +83,11 @@ def panel_b(events):
         ax.scatter(selection[:, 0], selection[:, 1], s=5, linewidths=0,
                    color=OUTCOME_COLORS[name], label=name, alpha=0.7)
 
-    theta = np.linspace(0, np.pi / 2, 200)
-    radius = 1 / np.sqrt(2)
-    ax.plot(radius * np.cos(theta), radius * np.sin(theta), lw=0.7, color="k", ls="--")
-    ax.plot([0, 1], [0, 1], lw=0.7, color="k", alpha=0.4)
+        draw_similarity_boundaries(ax)
 
     ax.set_xlabel("similarity to parent A")
     ax.set_ylabel("similarity to parent B")
     ax.set_title(f"$\\mu$ = {MU} (n = {len(coordinates)})", fontsize=7)
-    ax.set_aspect("equal")
-    ax.set_xlim(0, 1.05)
-    ax.set_ylim(0, 1.05)
     ax.legend(fontsize=5, loc="lower left")
     return save(fig, "fig2b_similarity_map")
 

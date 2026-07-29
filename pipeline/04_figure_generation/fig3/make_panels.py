@@ -18,10 +18,12 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "03_simulation"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "03_simulation"))
 
 import matplotlib.pyplot as plt  # noqa: E402
-from _common import MM, OUTCOME_COLORS, save, use_paper_style  # noqa: E402
+from _common import (  # noqa: E402
+    MM, OUTCOME_COLORS, draw_similarity_boundaries, save, use_paper_style,
+)  # noqa: E402
 
 from coalescence.decomposition import parental_dominance_index  # noqa: E402
 from coalescence_simulation import outcome_fractions, sweep  # noqa: E402
@@ -47,26 +49,20 @@ def panel_a(table):
             ax.scatter(selection.x1, selection.x2, s=3, linewidths=0,
                        color=OUTCOME_COLORS[name], alpha=0.6)
 
-        theta = np.linspace(0, np.pi / 2, 200)
-        radius = 1 / np.sqrt(2)
-        ax.plot(radius * np.cos(theta), radius * np.sin(theta), lw=0.7, color="k", ls="--")
-        ax.plot([0, 1], [0, 1], lw=0.7, color="k", alpha=0.4)
-        ax.set_title(f"$\\mu$ = {mu}  (n = {len(events)})", fontsize=7)
-        ax.set_aspect("equal")
-        ax.set_xlim(0, 1.05)
-        ax.set_ylim(0, 1.05)
+        draw_similarity_boundaries(ax)
+        ax.set_title(f"$\\mu$ = {mu}", fontsize=7, style="italic")
         if column == 0:
-            ax.set_ylabel("similarity to parent B")
+            ax.set_ylabel("Similarity(C,B)")
 
         # PDI histogram: unimodal at weak interactions, bimodal at strong.
         histogram = axes[1, column]
         pdi = parental_dominance_index(events.x1.to_numpy(), events.x2.to_numpy())
         histogram.hist(pdi[np.isfinite(pdi)], bins=20, range=(0, 1),
                        color="#7a7a7a", linewidth=0)
-        histogram.set_xlabel("PDI")
+        histogram.set_xlabel("Parental Dominance Index")
         histogram.set_xlim(0, 1)
         if column == 0:
-            histogram.set_ylabel("count")
+            histogram.set_ylabel("Density")
 
     return save(fig, "fig3a_similarity_maps")
 
@@ -87,8 +83,8 @@ def panel_b(table):
                         linewidth=0)
         bottom += values
 
-    ax.set_xlabel(r"interaction strength $\mu$")
-    ax.set_ylabel("fraction of events")
+    ax.set_xlabel(r"Interaction Strength $\mu$")
+    ax.set_ylabel("Fraction")
     ax.set_xlim(mu_values.min(), mu_values.max())
     ax.set_ylim(0, 1)
     ax.legend(fontsize=5, loc="center left", bbox_to_anchor=(1.02, 0.5))

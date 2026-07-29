@@ -34,6 +34,7 @@ import seaborn as sns
 from matplotlib.colors import ListedColormap
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from coalescence import io  # noqa: E402
 from coalescence.decomposition import (  # noqa: E402

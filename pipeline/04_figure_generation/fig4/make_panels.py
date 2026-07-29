@@ -16,7 +16,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import matplotlib.pyplot as plt  # noqa: E402
-from _common import MEDIUM_COLORS, MM, OUTCOME_COLORS, save, use_paper_style  # noqa: E402
+from _common import (  # noqa: E402
+    MEDIUM_COLORS, MM, OUTCOME_COLORS, SWAPPED_ALPHA, SWAPPED_COLOR,
+    draw_similarity_boundaries, save, use_paper_style,
+)  # noqa: E402
 
 from coalescence import io, outcomes  # noqa: E402
 
@@ -29,29 +32,22 @@ def panel_c(table):
     has no intrinsic parent ordering, so plotting both makes the symmetry of
     the space explicit rather than implying a preferred axis.
     """
-    fig, axes = plt.subplots(1, 3, figsize=(120 * MM, 42 * MM), sharex=True, sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(180 * MM, 60 * MM), sharex=True, sharey=True)
 
     for ax, medium in zip(axes, io.MEDIA_ORDER):
         label = io.MEDIUM_LABELS[medium]
         group = table[table.Medium == medium]
 
-        ax.scatter(group.x2, group.x1, s=6, color="#9a9a9a", alpha=0.55, linewidths=0)
-        ax.scatter(group.x1, group.x2, s=6, color=MEDIUM_COLORS[label], linewidths=0)
+        ax.scatter(group.x1, group.x2, s=25, color=MEDIUM_COLORS[label],
+                   alpha=0.7, linewidths=0)
+        ax.scatter(group.x2, group.x1, s=25, color=SWAPPED_COLOR,
+                   alpha=SWAPPED_ALPHA, linewidths=0)
 
-        # Restructuring boundary: r = 1/sqrt(2)
-        theta = np.linspace(0, np.pi / 2, 200)
-        radius = 1 / np.sqrt(2)
-        ax.plot(radius * np.cos(theta), radius * np.sin(theta), lw=0.7, color="k", ls="--")
-        # Diagonal: equal parental contribution
-        ax.plot([0, 1], [0, 1], lw=0.7, color="k", alpha=0.4)
-
+        draw_similarity_boundaries(ax)
         ax.set_title(f"{label} (n = {len(group)})", fontsize=7)
-        ax.set_xlabel("similarity to parent A")
-        ax.set_aspect("equal")
-        ax.set_xlim(0, 1.05)
-        ax.set_ylim(0, 1.05)
+        ax.set_xlabel("Similarity(C,A)")
 
-    axes[0].set_ylabel("similarity to parent B")
+    axes[0].set_ylabel("Similarity(C,B)")
     return save(fig, "fig4c_similarity_map")
 
 
@@ -68,7 +64,7 @@ def panel_d(fractions):
         bottom += values
 
     ax.set_ylim(0, 1)
-    ax.set_ylabel("fraction of events")
+    ax.set_ylabel("Fraction")
     ax.legend(fontsize=6, loc="upper right", bbox_to_anchor=(1.45, 1.0))
     return save(fig, "fig4d_outcome_fractions")
 

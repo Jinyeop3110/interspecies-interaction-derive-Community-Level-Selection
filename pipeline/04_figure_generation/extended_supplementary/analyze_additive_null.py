@@ -36,7 +36,8 @@ warnings.filterwarnings("ignore", category=UserWarning)
 # Path setup
 # ---------------------------------------------------------------------------
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-sys.path.insert(0, BASE_DIR)  # so we can import common_setup, COLORMAP
+sys.path.insert(0, BASE_DIR)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # COLORMAP
 
 from COLORMAP import (
     PHASE_DIAGRAM_COLORS,
