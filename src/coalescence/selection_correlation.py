@@ -96,13 +96,32 @@ def _pairs_within_and_across(affiliation):
 def event_concordance(parent_a, parent_b, coalesced, threshold=PRESENCE_THRESHOLD):
     """Concordance for one coalescence event.
 
-    Returns ``(rho_same, rho_cross)``, either of which may be ``nan`` if that
-    class of pair does not occur in this event.
+    Returns ``(rho_same, rho_cross)``, or ``None`` if the event cannot support
+    the comparison. An event is dropped from **both** means when:
+
+    * neither parent contributes two assignable species, so no same-parent
+      pair exists;
+    * either parent contributes none, so no cross-parent pair exists;
+    * either pair class comes out empty.
+
+    Dropping from both rather than from one is what keeps the two means over
+    the same set of events, and it is why the experimental counts are 90 / 83 /
+    83 rather than the 90 / 83 / 90 of the outcome table.
     """
     affiliation = assign_parental_affiliation(parent_a, parent_b, threshold)
     survived = np.asarray(coalesced, dtype=float) > threshold
 
+    n_a = int((affiliation == 0).sum())
+    n_b = int((affiliation == 1).sum())
+    if n_a < 2 and n_b < 2:
+        return None
+    if n_a < 1 or n_b < 1:
+        return None
+
     same_pairs, cross_pairs = _pairs_within_and_across(affiliation)
+    if not len(same_pairs) or not len(cross_pairs):
+        return None
+
     return concordance(survived, same_pairs), concordance(survived, cross_pairs)
 
 
@@ -112,16 +131,21 @@ def selection_correlation(events, threshold=PRESENCE_THRESHOLD):
     ``events`` is an iterable of ``(parent_a, parent_b, coalesced)`` triples of
     relative-abundance vectors.
 
-    Returns ``(rho_same, rho_cross, delta)``, averaged over events that yielded
-    a value.  ``delta`` is the quantity the permutation test evaluates.
+    Returns ``(rho_same, rho_cross, delta)``, averaged over the events that
+    support the comparison; see :func:`event_concordance` for when an event is
+    dropped. Both means are taken over the same event set. ``delta`` is the
+    quantity the permutation test evaluates.
     """
     same, cross = [], []
     for parent_a, parent_b, coalesced in events:
-        rho_same, rho_cross = event_concordance(parent_a, parent_b, coalesced, threshold)
-        if np.isfinite(rho_same):
-            same.append(rho_same)
-        if np.isfinite(rho_cross):
-            cross.append(rho_cross)
+        result = event_concordance(parent_a, parent_b, coalesced, threshold)
+        if result is None:
+            continue
+        rho_same, rho_cross = result
+        if not (np.isfinite(rho_same) and np.isfinite(rho_cross)):
+            continue
+        same.append(rho_same)
+        cross.append(rho_cross)
 
     mean_same = float(np.mean(same)) if same else np.nan
     mean_cross = float(np.mean(cross)) if cross else np.nan
@@ -135,15 +159,22 @@ def permutation_test(events, n_permutations=1000, threshold=PRESENCE_THRESHOLD, 
     preserves each event's composition and survival pattern and destroys only
     the association between parental origin and fate.
 
-    Returns ``(observed_delta, p_value, null_distribution)``.  The p-value is
-    one-sided: the fraction of permutations whose delta is at least the
-    observed one, with the usual ``+1`` correction so it is never zero.
+    Returns ``(observed_delta, p_value, null_distribution)``.
+
+    The p-value is **two-sided** — the fraction of permutations whose absolute
+    delta is at least the observed absolute delta — matching the Supplementary
+    Methods and the values reported for Extended Data Fig. 6. No ``+1``
+    correction is applied, again matching the original, so a p-value can come
+    out as exactly zero; the manuscript reports those as ``p < 0.001`` at 1,000
+    permutations.
     """
     rng = np.random.default_rng(seed)
     observed = selection_correlation(events, threshold)[2]
 
     prepared = []
     for parent_a, parent_b, coalesced in events:
+        if event_concordance(parent_a, parent_b, coalesced, threshold) is None:
+            continue
         affiliation = assign_parental_affiliation(parent_a, parent_b, threshold)
         survived = np.asarray(coalesced, dtype=float) > threshold
         prepared.append((affiliation, survived))
@@ -157,14 +188,15 @@ def permutation_test(events, n_permutations=1000, threshold=PRESENCE_THRESHOLD, 
             shuffled[assigned] = rng.permutation(shuffled[assigned])
 
             same_pairs, cross_pairs = _pairs_within_and_across(shuffled)
+            if not len(same_pairs) or not len(cross_pairs):
+                continue
             rho_same = concordance(survived, same_pairs)
             rho_cross = concordance(survived, cross_pairs)
-            if np.isfinite(rho_same):
+            if np.isfinite(rho_same) and np.isfinite(rho_cross):
                 same.append(rho_same)
-            if np.isfinite(rho_cross):
                 cross.append(rho_cross)
         null[permutation] = (np.mean(same) if same else np.nan) - \
                             (np.mean(cross) if cross else np.nan)
 
-    p_value = (np.sum(null >= observed) + 1) / (n_permutations + 1)
+    p_value = np.mean(np.abs(null) >= abs(observed))
     return observed, float(p_value), null

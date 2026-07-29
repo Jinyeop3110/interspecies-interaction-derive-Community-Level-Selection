@@ -67,7 +67,10 @@ def outcome_table(source="synthetic", apply_exclusions=True):
                 "SampleIDX": event.SampleIDX,
                 "Medium": event.Medium,
                 "CommunityIDX": event.CommunityIDX,
-                "pool": pool_size(int(event.CommunityIDX)),
+                # The richness classes are a feature of the synthetic design;
+                # natural communities have no species-pool size.
+                "pool": (pool_size(int(event.CommunityIDX))
+                         if source == "synthetic" else np.nan),
                 "Replicate": event.get("Replicate", np.nan),
                 "x1": x1,
                 "x2": x2,

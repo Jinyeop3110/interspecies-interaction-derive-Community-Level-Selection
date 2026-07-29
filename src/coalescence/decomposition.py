@@ -69,14 +69,15 @@ def decompose(u, v, m):
         Norm of the component of ``m`` outside the parental span.
 
     Negative coefficients are clipped to zero before rescaling: a parental
-    community cannot contribute a negative amount of composition, and in
-    practice negative values arise only for events already deep in the
-    Restructuring region.
+    community cannot contribute a negative amount of composition. The clip is
+    load-bearing rather than cosmetic -- roughly a fifth of the published
+    events have one negative raw coefficient, and most of those classify as
+    Dominance, not Restructuring.
 
     The rescaling puts ``x1``, ``x2`` and the residual on the unit sphere.  The
     one exception is when both coefficients clip to zero: there is then no
-    direction to rescale, and ``(0, 0, residual)`` is returned unscaled.  Such
-    events carry no parental signal and classify as Restructuring.
+    direction to rescale and ``(nan, nan, residual)`` is returned, which callers
+    treat as an event to drop rather than to classify.
     """
     u, v, m = normalize(u), normalize(v), normalize(m)
 
@@ -88,9 +89,11 @@ def decompose(u, v, m):
     residual = np.linalg.norm(m - coef[0] * u - coef[1] * v)
 
     if x1 == 0 and x2 == 0:
-        # Neither parent contributes positively: the event carries no parental
-        # signal at all, so it sits at the origin of the map (Restructuring).
-        return 0.0, 0.0, residual
+        # Neither parent contributes positively. The original produced NaN here
+        # (via inf * 0) and callers dropped the event rather than classifying
+        # it; returning NaN preserves that, and outcome_table's isfinite guard
+        # is what performs the drop.
+        return np.nan, np.nan, residual
 
     scale = np.sqrt((1 - residual ** 2) / (x1 ** 2 + x2 ** 2))
     return scale * x1, scale * x2, residual
@@ -105,9 +108,12 @@ def retention_and_asymmetry(x1, x2):
         Retention magnitude, ``sqrt(x1**2 + x2**2)``.  How much of the
         coalesced composition the two parents jointly explain.
     a : float
-        Angular asymmetry in ``[0, 1]``.  0 means the event sits on the
-        diagonal (both parents contribute equally); 1 means it sits on an axis
-        (one parent explains everything).
+        Angular asymmetry.  0 means the event sits on the diagonal (both
+        parents contribute equally); 1 means it sits on an axis (one parent
+        explains everything).  It lies in ``[0, 1]`` for the non-negative
+        coordinates :func:`decompose` returns; ``arctan2`` is used so that
+        ``x2 == 0`` stays finite, which also means values above 1 are possible
+        if this is called on unclipped coefficients.
 
     See :func:`parental_dominance_index` for the directional counterpart.
     ``a`` is ``abs(2 * PDI - 1)``, so ``a`` near 1 means PDI near 0 or 1.

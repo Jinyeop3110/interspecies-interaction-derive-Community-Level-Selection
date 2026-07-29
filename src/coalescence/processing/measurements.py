@@ -1,8 +1,14 @@
 """Stage 0b: plate-reader OD, pH and growth-curve readings.
 
-Python port of ``ExperimentalDataProcessing.m`` and the ``ODread_*`` /
-``PHread_*`` / ``GCread_*`` helpers, which attach the measurement columns to
+Partial port of ``ExperimentalDataProcessing.m``: the plate geometry, the OD
+noise subtraction and calibration, and the assembly of measurement columns onto
 ``Metadata.xlsx``.
+
+Two pieces of the MATLAB are **not** reimplemented here. ``PHread_*`` divides
+the raw block by 10 before reshaping, which callers must do themselves, and
+``GRcalculate`` derives the three growth-curve statistics behind ``fieldGC1..3``
+with no equivalent in this module. ``attach_measurements`` therefore takes
+pre-computed arrays rather than deriving them.
 
 Plate layout
 ------------
@@ -31,6 +37,7 @@ __all__ = [
     "read_plate_block",
     "reshape_parental_plate",
     "load_od_correction",
+    "correct_od_block",
     "attach_measurements",
 ]
 

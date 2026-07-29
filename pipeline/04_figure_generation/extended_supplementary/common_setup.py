@@ -216,10 +216,21 @@ def calculate_assymetricity(u, v, k=None):
 
 
 def characterize_case(x, y):
-    """0 Dominance, 1 Mixture, 2 Restructuring."""
-    if x ** 2 <= 0.5:
+    """0 Dominance, 1 Mixture, 2 Restructuring, or None if undefined.
+
+    Returns None for NaN coordinates and on the exact boundaries, matching the
+    original. Scripts branch on ``is None`` to drop such events; silently
+    calling them Mixture would be the worst available failure mode.
+    """
+    if not (np.isfinite(x) and np.isfinite(y)):
+        return None
+    if x ** 2 > 0.5 and y > 0.5:
+        return 0
+    if x ** 2 > 0.5 and y < 0.5:
+        return 1
+    if x ** 2 < 0.5:
         return 2
-    return 0 if y > 0.5 else 1
+    return None
 
 
 def uniform_distribution(u, o):

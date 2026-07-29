@@ -57,13 +57,13 @@ EXCLUSION_REASONS = {
     "P5-73": "parental community MN E7 missing",
     "P5-47": "unexpected ASVs, likely mislabelling",
     "P5-50": "unexpected ASVs, likely mislabelling",
-    "P5-39": "more than 30% of abundance from ASVs in neither parent",
-    "P5-54": "more than 30% of abundance from ASVs in neither parent",
-    "P5-87": "more than 30% of abundance from ASVs in neither parent",
-    "P6-02": "more than 30% of abundance from ASVs in neither parent",
-    "P6-47": "more than 30% of abundance from ASVs in neither parent",
-    "P6-57": "more than 30% of abundance from ASVs in neither parent",
-    "P6-74": "more than 30% of abundance from ASVs in neither parent",
+    "P5-39": "unexpected ASVs not present in either parent",
+    "P5-54": "unexpected ASVs not present in either parent",
+    "P5-87": "unexpected ASVs not present in either parent",
+    "P6-02": "unexpected ASVs not present in either parent",
+    "P6-47": "unexpected ASVs not present in either parent",
+    "P6-57": "unexpected ASVs not present in either parent",
+    "P6-74": "unexpected ASVs not present in either parent",
 }
 
 EXCLUDED_SAMPLES = frozenset(EXCLUSION_REASONS)
