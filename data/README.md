@@ -20,6 +20,12 @@ communities), `natural` (environmental sample-derived communities) or
 | `processed_CoalescenceEvent_simulation.xlsx` | one per event | Simulated coalescence events, indexed by species-pool size `S` and interaction strength `I`. |
 | `processed_Communities_synthetic.xlsx` | one per community | Parental and coalesced communities with diversity metrics. |
 | `processed_Communities_natural.xlsx` | one per community | As above, natural communities. |
+| `Metadata.xlsx` | one per community | Experimental design factors (timepoint, origin, medium, coalescence type, replicate, community index) plus endpoint OD, pH and growth-curve readings. Loaded by `io.load_metadata()`. |
+| `CoalescenceRecipe.xlsx` | one per coalescence | Which two parental community indices were mixed to produce each coalesced community. Sheet 1 synthetic, sheet 2 natural. Loaded by `io.load_coalescence_recipe()`. |
+
+`Metadata.xlsx` and `CoalescenceRecipe.xlsx` are required by `figures/fig5` and
+`figures/supplementary`, and by the processing pipeline. They must be in the
+archive alongside the six processed tables.
 
 ### Key columns
 

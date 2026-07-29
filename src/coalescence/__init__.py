@@ -4,7 +4,10 @@ Every figure script in ``figures/`` imports from here.  Nothing in this
 package writes files or draws figures; keep plotting in the figure scripts.
 """
 
-from . import decomposition, io, lv, metrics, outcomes, species_pool, style
+from . import (
+    decomposition, io, lv, metrics, outcomes, processing,
+    selection_correlation, species_pool, style,
+)
 
 __version__ = "1.0.0"
 
@@ -14,6 +17,8 @@ __all__ = [
     "lv",
     "metrics",
     "outcomes",
+    "processing",
+    "selection_correlation",
     "species_pool",
     "style",
 ]

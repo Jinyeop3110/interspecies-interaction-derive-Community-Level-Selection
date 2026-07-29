@@ -46,13 +46,21 @@ def run(replicates, n_communities=2, species_per_community=12):
         )
         events.extend(pairs)
 
-        parents = [pairs[0][0], pairs[0][1]] if n_communities == 2 else None
-        if parents is not None:
-            for seeded, survived in mean_interaction_before_after(
-                interactions, library, parents
-            ):
-                before.append(seeded)
-                after.append(survived)
+        # Recover each parental community's equilibrium once. Every pair shares
+        # the same parents, so take the first appearance of each.
+        parents = [None] * n_communities
+        index = 0
+        for a in range(n_communities):
+            for b in range(a + 1, n_communities):
+                parents[a] = parents[a] if parents[a] is not None else pairs[index][0]
+                parents[b] = parents[b] if parents[b] is not None else pairs[index][1]
+                index += 1
+
+        for seeded, survived in mean_interaction_before_after(
+            interactions, library, parents
+        ):
+            before.append(seeded)
+            after.append(survived)
 
     return events, np.array(before), np.array(after)
 

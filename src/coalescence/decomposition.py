@@ -24,6 +24,7 @@ __all__ = [
     "normalize",
     "decompose",
     "retention_and_asymmetry",
+    "parental_dominance_index",
     "classify",
     "OUTCOME_LABELS",
     "RETENTION_BOUNDARY",
@@ -103,9 +104,8 @@ def retention_and_asymmetry(x1, x2):
         diagonal (both parents contribute equally); 1 means it sits on an axis
         (one parent explains everything).
 
-    The parental dominance index reported in the paper is a monotone
-    reparameterization of the same angle:
-    ``PDI = x1 / (x1 + x2)``, so ``a`` near 1 corresponds to PDI near 0 or 1.
+    See :func:`parental_dominance_index` for the directional counterpart.
+    ``a`` is ``abs(2 * PDI - 1)``, so ``a`` near 1 means PDI near 0 or 1.
     """
     x1, x2 = np.asarray(x1, dtype=float), np.asarray(x2, dtype=float)
     r = np.sqrt(x1 ** 2 + x2 ** 2)
@@ -114,6 +114,28 @@ def retention_and_asymmetry(x1, x2):
     angle = np.arctan2(x1, x2)
     a = np.abs(np.abs(angle) - np.pi / 4) / (np.pi / 4)
     return r, a
+
+
+def parental_dominance_index(x1, x2):
+    """Directional parental contribution, as defined in the Supplementary Methods.
+
+    ``PDI = (2 / pi) * arctan(x1 / x2)``, running from 0 (parent B explains
+    everything) through 0.5 (equal contributions) to 1 (parent A explains
+    everything).
+
+    Note this is *not* ``x1 / (x1 + x2)``.  The two agree at 0, 0.5 and 1 and
+    are both monotone in ``x1 / x2``, but differ in between: at a 2.4:1 ratio
+    — the value the paper's 0.25/0.75 classification thresholds correspond to —
+    they give 0.75 and 0.71 respectively.  Use this function when the published
+    PDI is what you want.
+
+    Events with ``x1 == x2 == 0`` have no retention and are classified as
+    Restructuring rather than given a direction; those return ``nan``.
+    """
+    x1, x2 = np.asarray(x1, dtype=float), np.asarray(x2, dtype=float)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        pdi = (2 / np.pi) * np.arctan2(x1, x2)
+    return np.where((x1 == 0) & (x2 == 0), np.nan, pdi)
 
 
 def classify(r, a):

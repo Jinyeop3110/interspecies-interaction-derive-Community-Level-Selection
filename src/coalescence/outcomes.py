@@ -4,7 +4,9 @@ import numpy as np
 import pandas as pd
 
 from . import io
-from .decomposition import classify, decompose, retention_and_asymmetry
+from .decomposition import (
+    classify, decompose, parental_dominance_index, retention_and_asymmetry,
+)
 
 __all__ = ["outcome_table", "outcome_fractions"]
 
@@ -57,7 +59,7 @@ def outcome_table(source="synthetic", apply_exclusions=True):
                 "residual": residual,
                 "r": r,
                 "asymmetry": asymmetry,
-                "PDI": x1 / (x1 + x2) if (x1 + x2) > 0 else np.nan,
+                "PDI": float(parental_dominance_index(x1, x2)),
                 "outcome": classify(r, asymmetry),
             }
         )

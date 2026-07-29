@@ -118,7 +118,7 @@ lettering or annotation.
 | Fig. 4d Mixture, synthetic | 53% / 4% / 6% | 53.3% / 3.6% / 5.6% |
 | Fig. 4d event counts | 90 / 83 / 90 | 90 / 83 / 90 |
 | Fig. 1e Base (Dominance / Restructuring / Mixture) | 65% / 31% / 4% | 65.1% / 31.3% / 3.6% |
-| Fig. 2b Dominance at μ = 0.6, n = 1,200 | 61% | 61.3% |
+| Fig. 2b Dominance at μ = 0.6, n = 1,200 | 61% | 57.4% (see below) |
 | Fig. 5b dominant-species abundance | 44 / 51 / 67% | 42.4 / 59.6 / 66.7% |
 
 All outcome fractions reproduce exactly, including the event counts. This
@@ -127,12 +127,24 @@ depends on the quality-control exclusions in `coalescence.io.EXCLUDED_SAMPLES`
 study and on by default. Pass `outcome_table(apply_exclusions=False)` to see the
 unfiltered data.
 
-One number does not yet reproduce: Figure 5b gives 59.6% for Base against a
-published 51%, while Nutr− and Nutr+ agree to within 1.6 percentage points. The
-gap is confined to one medium, is not explained by richness block, and is not
-resolved by the exclusion list; see
-[`figures/fig5/README.md`](figures/fig5/README.md). Treat Base in panel 5b as
-unverified.
+Two numbers do not yet reproduce.
+
+**Figure 5b, Base medium.** 59.6% against a published 51%, while Nutr− and
+Nutr+ agree to within 1.6 percentage points. Confined to one medium, not
+explained by richness block, not resolved by the exclusion list. See
+[`figures/fig5/README.md`](figures/fig5/README.md).
+
+**Figure 2b.** Run at the configuration the Methods describe — four parental
+communities drawn from a pool of 54 — the simulation gives 57.4% Dominance /
+17.0% Mixture / 25.6% Restructuring against a published 61 / 13 / 26. The
+closest match comes from a two-community configuration, which is what every
+cached simulation session in the working tree used. See
+[`figures/fig2/README.md`](figures/fig2/README.md) for the comparison across
+configurations; the discrepancy is unresolved.
+
+Figure 2c reproduces the published replicate structure (600 paired summaries,
+599 degrees of freedom) and the direction and significance of the assembly
+effect, but gives `t = 38.17` against a published 29.26.
 
 ## Citing
 
