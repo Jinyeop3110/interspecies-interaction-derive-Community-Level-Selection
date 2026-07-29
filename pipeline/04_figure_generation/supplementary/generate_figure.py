@@ -132,7 +132,7 @@ def plot():
         ax.set_title(label, fontsize=7, color=color)
         annotate_spearman(ax, x_od, y_pdi, loc="upper left")
         if col == 0:
-            ax.set_ylabel("PDI")
+            ax.set_ylabel("Parental Dominance Index")
 
         parent_group = parents[parents.Medium == medium].copy()
         parent_od = parent_group.fieldOD7.to_numpy(dtype=float)

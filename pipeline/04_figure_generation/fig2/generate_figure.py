@@ -79,7 +79,7 @@ def panel_b(events):
         coordinates.append((x1, x2, classify(r, asymmetry)))
     coordinates = np.array(coordinates)
 
-    fig, ax = plt.subplots(figsize=(52 * MM, 52 * MM))
+    fig, ax = plt.subplots(figsize=(60 * MM, 60 * MM), facecolor="w", edgecolor="k")
     for outcome, name in enumerate(("Dominance", "Mixture", "Restructuring")):
         selection = coordinates[coordinates[:, 2] == outcome]
         ax.scatter(selection[:, 0], selection[:, 1], s=5, linewidths=0,
@@ -87,9 +87,9 @@ def panel_b(events):
 
     draw_similarity_boundaries(ax)
 
-    ax.set_xlabel("similarity to parent A")
-    ax.set_ylabel("similarity to parent B")
-    ax.set_title(f"$\\mu$ = {MU} (n = {len(coordinates)})", fontsize=7)
+    ax.set_xlabel("Similarity(C,A)")
+    ax.set_ylabel("Similarity(C,B)")
+    ax.set_title(f"$\\mu$ = {MU}", fontsize=7, style="italic")
     ax.legend(fontsize=5, loc="lower left")
     return save(fig, "fig2b_similarity_map")
 
@@ -109,6 +109,7 @@ def panel_c(before, after):
     print("  published: t_599 = 29.26, p = 1.54e-117")
 
     rng = np.random.default_rng(42)
+    # The original specifies this panel in inches, not mm.
     fig, ax = plt.subplots(figsize=(2.2, 2.2), facecolor="w", edgecolor="k")
 
     for position, values, colour in ((0, before, "#8B7AB8"), (1, after, "#F4A582")):
@@ -160,6 +161,7 @@ def panel_d(events):
           f"delta = {observed:.3f}, permutation p = {p_value:.3g}")
 
     rng = np.random.default_rng(0)
+    # As with panel c, the original specifies inches.
     fig, ax = plt.subplots(figsize=(2.5, 2.5), facecolor="w", edgecolor="k")
 
     for position, values, colour in ((0, same, "#e74c3c"), (1, cross, "#3498db")):

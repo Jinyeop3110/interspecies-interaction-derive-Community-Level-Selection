@@ -37,8 +37,12 @@ MU_MIN, MU_MAX, MU_STEP = 0.0, 1.2, 0.1
 
 def panel_a(table):
     """Similarity maps at three interaction strengths, with PDI histograms."""
-    fig, axes = plt.subplots(2, 3, figsize=(120 * MM, 62 * MM),
-                             gridspec_kw={"height_ratios": [3, 1]})
+    # Three 60 mm maps with the histogram row beneath, proportioned as the
+    # originals (maps 60 mm square, histograms about 22.6 mm tall).
+    fig, axes = plt.subplots(2, 3, figsize=(180 * MM, 83 * MM),
+                             gridspec_kw={"height_ratios": [60, 22.6]},
+                             facecolor="w", edgecolor="k")
+    fig.subplots_adjust(wspace=0.3, hspace=0.45)
 
     for column, mu in enumerate(REPRESENTATIVE_MU):
         events = table[np.isclose(table.mu, mu)]
