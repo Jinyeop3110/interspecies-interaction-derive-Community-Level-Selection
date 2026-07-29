@@ -98,7 +98,7 @@ def initialize_community_pool(n_species, n_communities, species_per_community):
 
 
 def simulate_one_replicate(mu, seed, n_communities=2, species_per_community=12,
-                           spread=0.0, pool_size=None):
+                           spread=0.0, pool_size=None, return_interactions=False):
     """Assemble parental communities and coalesce every pair.
 
     ``pool_size`` is the number of species in the pool.  It defaults to exactly
@@ -132,7 +132,17 @@ def simulate_one_replicate(mu, seed, n_communities=2, species_per_community=12,
         equilibrium[equilibrium < EXTINCTION_THRESHOLD] = 0
         parents.append(equilibrium)
 
-    # Coalesce every pair at their equilibrium abundances.
+    if return_interactions:
+        return _pairwise_results(parents, library, interactions, growth_rates,
+                                 carrying_capacities, n_communities), interactions, library
+
+    return _pairwise_results(parents, library, interactions, growth_rates,
+                             carrying_capacities, n_communities)
+
+
+def _pairwise_results(parents, library, interactions, growth_rates,
+                      carrying_capacities, n_communities):
+    """Coalesce every pair of parental communities at their equilibria."""
     results = []
     for a in range(n_communities):
         for b in range(a + 1, n_communities):
@@ -143,8 +153,34 @@ def simulate_one_replicate(mu, seed, n_communities=2, species_per_community=12,
             )
             coalesced[coalesced < EXTINCTION_THRESHOLD] = 0
             results.append((parents[a], parents[b], coalesced))
-
     return results
+
+
+def mean_interaction_before_after(interactions, library, parents):
+    """Mean off-diagonal competition coefficient before and after assembly.
+
+    ``before`` averages over all species pairs within a parental community as
+    it was seeded; ``after`` averages over only those that survived to
+    equilibrium.  Competitive exclusion removes strongly competing species, so
+    the surviving set should show weaker mutual interactions — the assembly
+    effect in Fig. 2c.
+
+    Returns one ``(before, after)`` pair per parental community.
+    """
+    summaries = []
+    for community, equilibrium in zip(library, parents):
+        seeded = np.flatnonzero(community > 0)
+        survived = np.flatnonzero((community > 0) & (equilibrium > EXTINCTION_THRESHOLD))
+        if len(seeded) < 2 or len(survived) < 2:
+            continue
+
+        def mean_off_diagonal(members):
+            block = interactions[np.ix_(members, members)]
+            off = block[~np.eye(len(members), dtype=bool)]
+            return float(off.mean())
+
+        summaries.append((mean_off_diagonal(seeded), mean_off_diagonal(survived)))
+    return summaries
 
 
 def sweep(mu_values, n_replicates=100, n_communities=2, species_per_community=12,

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Supplementary Fig. 14: parental OD controls and OD-pH coupling.
+"""Supplementary Fig. 14: parental OD controls and OD-pH association.
 
 Generates the active Supplementary Fig. 14 PDF used by the LaTeX manuscript:
-top row, signed parental OD difference versus PDI; bottom row, signed
-parental OD difference versus signed parental pH difference.
+top row, signed parental OD difference versus PDI; bottom row,
+parental-community endpoint OD versus endpoint pH.
 
 Run from anywhere:
   python figures/supplementary/make_supp_fig14_od_ph.py
@@ -64,7 +64,6 @@ def analysis_table():
                 "Medium": event.Medium,
                 "PDI": event.PDI,
                 "delta_OD": parent_a.fieldOD7 - parent_b.fieldOD7,
-                "delta_pH": parent_a.fieldPH7 - parent_b.fieldPH7,
             }
         )
     return pd.DataFrame(rows)
@@ -102,6 +101,7 @@ def symmetric_limits(values, pad=0.08):
 def plot():
     use_paper_style()
     table = analysis_table()
+    parents = parent_measurements().reset_index()
 
     fig, axes = plt.subplots(
         2,
@@ -118,7 +118,6 @@ def plot():
 
         x_od = group.delta_OD.to_numpy(dtype=float)
         y_pdi = group.PDI.to_numpy(dtype=float)
-        y_ph = group.delta_pH.to_numpy(dtype=float)
 
         ax = axes[0, col]
         ax.scatter(-x_od, 1 - y_pdi, s=8, color="#bdbdbd", alpha=0.45, linewidths=0)
@@ -132,17 +131,16 @@ def plot():
         if col == 0:
             ax.set_ylabel("PDI")
 
+        parent_group = parents[parents.Medium == medium].copy()
+        parent_od = parent_group.fieldOD7.to_numpy(dtype=float)
+        parent_ph = parent_group.fieldPH7.to_numpy(dtype=float)
+
         ax = axes[1, col]
-        ax.scatter(-x_od, -y_ph, s=8, color="#bdbdbd", alpha=0.45, linewidths=0)
-        ax.scatter(x_od, y_ph, s=9, color=color, alpha=0.82, linewidths=0)
-        ax.axvline(0, color="0.6", lw=0.6, ls="--")
-        ax.axhline(0, color="0.6", lw=0.6, ls="--")
-        ax.set_xlim(symmetric_limits(x_od))
-        ax.set_ylim(symmetric_limits(y_ph, pad=0.15))
-        annotate_spearman(ax, x_od, y_ph, loc="upper left")
-        ax.set_xlabel(r"$\Delta$OD$_{A-B}$")
+        ax.scatter(parent_od, parent_ph, s=9, color=color, alpha=0.82, linewidths=0)
+        annotate_spearman(ax, parent_od, parent_ph, loc="lower right")
+        ax.set_xlabel(r"Endpoint OD$_{600}$")
         if col == 0:
-            ax.set_ylabel(r"$\Delta$pH$_{A-B}$")
+            ax.set_ylabel("Endpoint pH")
 
     fig.subplots_adjust(left=0.08, right=0.99, top=0.91, bottom=0.14, wspace=0.28, hspace=0.36)
     for suffix in [".pdf", ".svg"]:
@@ -156,10 +154,16 @@ def plot():
     for medium in io.MEDIA_ORDER:
         label = io.MEDIUM_LABELS[medium]
         group = table[table.Medium == medium]
-        for y_name, y in [("PDI", group.PDI), ("delta_pH", group.delta_pH)]:
-            valid = np.isfinite(group.delta_OD) & np.isfinite(y)
-            rho, p_value = spearmanr(group.loc[valid, "delta_OD"], y[valid])
-            print(f"{label:5s} delta_OD vs {y_name:8s}: n={valid.sum():2d}, rho={rho:.3f}, p={p_value:.3g}")
+        valid = np.isfinite(group.delta_OD) & np.isfinite(group.PDI)
+        rho, p_value = spearmanr(group.loc[valid, "delta_OD"], group.loc[valid, "PDI"])
+        print(f"{label:5s} delta_OD vs PDI: n={valid.sum():2d}, rho={rho:.3f}, p={p_value:.3g}")
+
+        parent_group = parents[parents.Medium == medium]
+        valid = np.isfinite(parent_group.fieldOD7) & np.isfinite(parent_group.fieldPH7)
+        rho, p_value = spearmanr(
+            parent_group.loc[valid, "fieldOD7"], parent_group.loc[valid, "fieldPH7"]
+        )
+        print(f"{label:5s} parent OD vs pH: n={valid.sum():2d}, rho={rho:.3f}, p={p_value:.3g}")
 
 
 if __name__ == "__main__":
