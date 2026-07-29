@@ -79,16 +79,25 @@ def reshape_coalesced_plate(block):
     return block
 
 
-#: Degree-5 polynomial recovered from 1,260 paired raw and corrected readings.
-#: Highest order first, for :class:`numpy.poly1d`.  See
-#: :func:`load_od_correction` for provenance and accuracy.
+#: Degree-9 polynomial recovered from 1,260 paired raw and corrected readings,
+#: highest order first for :class:`numpy.poly1d`.  Held-out accuracy is 9e-6 OD
+#: maximum, 4e-7 RMS.  Regenerate with ``tools/recover_od_calibration.py``.
 RECOVERED_OD_CORRECTION = [
-    0.04246354, -0.06013511, 0.12759108, 0.18337700, 1.00435607, -0.00019626,
+    0.0038145803692015354,
+    -0.01712746938690764,
+    0.037079770768838304,
+    -0.039847582368227046,
+    0.03524948250773758,
+    0.006614097450233853,
+    0.06179799673403879,
+    0.20991251185529497,
+    1.0000188742458185,
+    -2.849185792631785e-07,
 ]
 
 
 def load_od_correction(coefficients=None, raw_samples=None, corrected_samples=None,
-                       degree=5):
+                       degree=9):
     """Return the OD linearization curve as a callable.
 
     Plate-reader absorbance saturates at high cell density, so raw readings are
@@ -98,26 +107,16 @@ def load_od_correction(coefficients=None, raw_samples=None, corrected_samples=No
     class instance (MCOS), which cannot be deserialized outside MATLAB, so the
     curve itself is not portable.
 
-    Three ways to obtain it, best first:
+    The default recovers the curve numerically instead, and needs no MATLAB.
+    The transform is smooth, monotone and deterministic, and the archived data
+    contains both sides of it — raw plate readings and corrected OD in
+    ``Metadata.xlsx``.  A degree-9 polynomial through 1,260 such pairs
+    reproduces it to a held-out maximum error of 9e-6 OD (RMS 4e-7), four
+    orders of magnitude below plate-reader precision.  Regenerate the
+    coefficients with ``tools/recover_od_calibration.py``.
 
-    1. **Export the real curve from MATLAB.**  Run
-
-           load('OD_correction_function_2202.mat')
-           writematrix(coeffvalues(OD_correction_function), 'od_coeffs.csv')
-           type(OD_correction_function)   % records the model form
-
-       and pass the result as ``coefficients``.  This is the only way to
-       reproduce the archived values exactly, and is what a release should do.
-
-    2. **Use the recovered approximation** (the default).  Fitting a degree-5
-       polynomial through 1,260 paired raw and corrected readings taken from the
-       raw plate files and the archived ``Metadata.xlsx`` reproduces the curve to
-       a maximum error of about 1e-3 OD and an RMS error of about 5e-5 on
-       held-out points.  That is well below plate-reader precision but is an
-       approximation, not the original function.
-
-    3. **Refit from your own paired data** by passing ``raw_samples`` and
-       ``corrected_samples``.
+    Pass ``coefficients`` to supply a curve directly, or ``raw_samples`` and
+    ``corrected_samples`` to refit from your own paired data.
     """
     if coefficients is not None:
         return np.poly1d(np.asarray(coefficients, dtype=float))

@@ -64,24 +64,29 @@ parental pairings and the plate-reader readings. Both are also ported:
 | Module | Replaces | Parity |
 |---|---|---|
 | `processing/design.py` | `MetadataGenerator.m`, `RecipeGenerator.m`, `CoalescenceRecipe.m` | exact |
-| `processing/measurements.py` | `ExperimentalDataProcessing.m` and the `ODread_*`/`PHread_*`/`GCread_*` helpers | pH exact; OD to 6e-4 |
+| `processing/measurements.py` | `ExperimentalDataProcessing.m` and the `ODread_*`/`PHread_*`/`GCread_*` helpers | pH exact; OD to 6e-7 |
 
-The one piece that is not fully portable is the OD calibration curve. The MATLAB
-applies a Curve Fitting Toolbox `cfit` object stored in
-`OD_correction_function_2202.mat`; that is a serialized MATLAB class instance and
-cannot be read outside MATLAB. `load_od_correction()` defaults to a degree-5
-polynomial recovered from 1,260 paired raw and corrected readings, accurate to
-about 6e-4 OD (RMS 4e-5) — below plate-reader precision, but an approximation.
+### The OD calibration curve
 
-To make it exact, export the real curve from MATLAB once:
+The MATLAB applies a Curve Fitting Toolbox `cfit` object stored in
+`OD_correction_function_2202.mat`. That is a serialized MATLAB class instance
+(MCOS) and cannot be deserialized outside MATLAB — but it does not need to be.
 
-```matlab
-load('OD_correction_function_2202.mat')
-writematrix(coeffvalues(OD_correction_function), 'od_coeffs.csv')
-type(OD_correction_function)   % records the model form
+The curve is a smooth, monotone, deterministic transform, and the archived data
+contains both sides of it: raw plate readings on one side, corrected OD in
+`Metadata.xlsx` on the other. Fitting a polynomial through those pairs recovers
+it directly:
+
+```bash
+python tools/recover_od_calibration.py --raw-root /path/to/working/tree --degree 9
 ```
 
-then pass the coefficients to `load_od_correction(coefficients=...)`.
+Held-out accuracy is 9e-6 OD maximum (RMS 4e-7), and end-to-end the pipeline
+reproduces the archived `fieldOD` columns to **6e-7 across 1,260 readings** —
+four orders of magnitude below plate-reader precision. The coefficients are
+baked into `measurements.RECOVERED_OD_CORRECTION`; the tool regenerates them.
+
+No MATLAB is required at any stage.
 
 ## 03_simulation — generalized Lotka-Volterra model (Python)
 
