@@ -17,9 +17,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import matplotlib.pyplot as plt  # noqa: E402
 from _common import (  # noqa: E402
-    MEDIUM_COLORS, MM, OUTCOME_COLORS, SWAPPED_ALPHA, SWAPPED_COLOR,
-    draw_similarity_boundaries, save, use_paper_style,
-)  # noqa: E402
+    MEDIUM_COLORS, MM, SWAPPED_ALPHA, SWAPPED_COLOR,
+    draw_similarity_boundaries, save, stacked_outcome_series, use_paper_style,
+)
 
 from coalescence import io, outcomes  # noqa: E402
 
@@ -39,7 +39,8 @@ def panel_b(table):
 
         draw_similarity_boundaries(ax)
 
-        ax.set_title(f"{label} (n = {len(group)})", fontsize=7)
+        ax.set_title(label, fontsize=7, style="italic",
+                     color=MEDIUM_COLORS[label])
         ax.set_xlabel("Similarity(C,A)")
 
     axes[0].set_ylabel("Similarity(C,B)")
@@ -47,17 +48,16 @@ def panel_b(table):
 
 
 def panel_c(fractions):
-    """Dominance fraction across media."""
-    fig, ax = plt.subplots(figsize=(50 * MM, 45 * MM))
+    """Outcome fractions across media.
 
-    labels = list(fractions.index)
-    values = fractions["Dominance"].to_numpy(dtype=float)
-    ax.bar(labels, values, color=OUTCOME_COLORS["Dominance"], alpha=0.85,
-           width=0.6, edgecolor="none")
-
-    ax.set_ylim(0, 1)
-    ax.set_ylabel("fraction Dominance")
-    return save(fig, "fig6c_dominance_fraction")
+    The published panel is the full three-outcome stacked chart, in the same
+    style as Fig. 4d -- not a Dominance-only series.
+    """
+    fig, ax = plt.subplots(figsize=(60 * MM, 60 * MM), facecolor="w", edgecolor="k")
+    stacked_outcome_series(ax, fractions)
+    ax.set_xlabel("Media")
+    ax.set_ylabel("Coalescence outcome fraction")
+    return save(fig, "fig6c_outcome_fractions")
 
 
 def main():

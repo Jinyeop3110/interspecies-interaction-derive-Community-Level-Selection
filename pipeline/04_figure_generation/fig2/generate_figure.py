@@ -17,6 +17,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
+from matplotlib.ticker import MultipleLocator
 from scipy import stats
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -29,7 +30,9 @@ from _common import (  # noqa: E402
 )  # noqa: E402
 
 from coalescence.decomposition import classify, decompose, retention_and_asymmetry  # noqa: E402
-from coalescence.selection_correlation import selection_correlation  # noqa: E402
+from coalescence.selection_correlation import (  # noqa: E402
+    event_concordance, permutation_test,
+)
 from coalescence_simulation import (  # noqa: E402
     mean_interaction_before_after, simulate_one_replicate,
 )
@@ -97,36 +100,91 @@ def panel_c(before, after):
 
     Competitive exclusion removes strongly competing species during assembly,
     so the surviving set interacts more weakly than the community as seeded.
+
+    Drawn as a jittered strip plot with an open square for the mean and s.e.m.,
+    matching the published panel, rather than connecting lines.
     """
     t_statistic, p_value = stats.ttest_rel(before, after)
     print(f"  paired t = {t_statistic:.2f}, df = {len(before) - 1}, p = {p_value:.2e}")
     print(f"  mean alpha before = {before.mean():.4f}, after = {after.mean():.4f}")
+    print("  published: t_599 = 29.26, p = 1.54e-117")
 
-    fig, ax = plt.subplots(figsize=(40 * MM, 45 * MM))
-    for b, a in zip(before, after):
-        ax.plot([0, 1], [b, a], color="#9a9a9a", alpha=0.06, lw=0.5)
-    ax.errorbar([0, 1], [before.mean(), after.mean()],
-                yerr=[before.std(ddof=1) / np.sqrt(len(before)),
-                      after.std(ddof=1) / np.sqrt(len(after))],
-                color="#003f5c", marker="o", ms=3, lw=1.2, capsize=2)
+    rng = np.random.default_rng(42)
+    fig, ax = plt.subplots(figsize=(2.2, 2.2), facecolor="w", edgecolor="k")
 
+    for position, values, colour in ((0, before, "#8B7AB8"), (1, after, "#F4A582")):
+        jitter = rng.normal(0, 0.1, len(values))
+        ax.scatter(position + jitter, values, s=15, color=colour, alpha=0.3,
+                   edgecolors="none")
+        ax.errorbar(position, values.mean(),
+                    yerr=values.std(ddof=1) / np.sqrt(len(values)),
+                    fmt="s", markersize=12, markerfacecolor="white",
+                    markeredgecolor="black", markeredgewidth=0.5,
+                    ecolor="black", capsize=5, capthick=1.5, linewidth=1.5,
+                    zorder=10)
+
+    # Significance bracket over the two categories.
+    top = max(before.max(), after.max())
+    ax.plot([0, 0, 1, 1], [top * 1.02, top * 1.06, top * 1.06, top * 1.02],
+            color="black", linewidth=1)
+    ax.text(0.5, top * 1.07, "***", ha="center", va="bottom", fontsize=14,
+            fontweight="bold")
+
+    ax.set_xlim(-0.5, 1.5)
+    ax.set_ylim(0, 0.8)
     ax.set_xticks([0, 1])
-    ax.set_xticklabels(["pre-\nassembly", "post-\nassembly"])
-    ax.set_xlim(-0.35, 1.35)
-    ax.set_ylabel(r"mean $\alpha_{ij}$")
+    ax.set_xticklabels(["Initial", "Post-assembly"])
+    ax.set_yticks([0, 0.4, 0.8])
+    ax.set_ylabel("Mean pairwise interaction")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
     return save(fig, "fig2c_assembly_effect")
 
 
 def panel_d(events):
-    """Pairwise selection correlation, within vs across parental communities."""
-    rho_same, rho_cross, delta = selection_correlation(events)
-    print(f"  rho_same = {rho_same:.3f}, rho_cross = {rho_cross:.3f}, delta = {delta:.3f}")
+    """Pairwise selection correlation, within vs across parental communities.
 
-    fig, ax = plt.subplots(figsize=(40 * MM, 45 * MM))
-    ax.bar(["same\nparent", "different\nparent"], [rho_same, rho_cross],
-           color=["#bc5090", "#003f5c"], alpha=0.85, width=0.6, edgecolor="none")
-    ax.axhline(0, color="k", lw=0.7)
-    ax.set_ylabel("selection correlation $\\rho$")
+    Per-event values as a jittered strip plot, filled square means with s.e.m.,
+    and the shuffled-label null as a grey baseline -- the published idiom.
+    """
+    same, cross = [], []
+    for parent_a, parent_b, coalesced in events:
+        rho_same, rho_cross = event_concordance(parent_a, parent_b, coalesced)
+        if np.isfinite(rho_same):
+            same.append(rho_same)
+        if np.isfinite(rho_cross):
+            cross.append(rho_cross)
+    same, cross = np.array(same), np.array(cross)
+
+    observed, p_value, null = permutation_test(events, n_permutations=200)
+    print(f"  rho_same = {same.mean():.3f}, rho_cross = {cross.mean():.3f}, "
+          f"delta = {observed:.3f}, permutation p = {p_value:.3g}")
+
+    rng = np.random.default_rng(0)
+    fig, ax = plt.subplots(figsize=(2.5, 2.5), facecolor="w", edgecolor="k")
+
+    for position, values, colour in ((0, same, "#e74c3c"), (1, cross, "#3498db")):
+        jitter = rng.normal(0, 0.08, len(values))
+        ax.scatter(position + jitter, values, s=15, color=colour, alpha=0.3,
+                   edgecolors="none")
+        ax.errorbar(position, values.mean(),
+                    yerr=values.std(ddof=1) / np.sqrt(len(values)),
+                    fmt="s", markersize=6, color=colour,
+                    markeredgecolor="black", markeredgewidth=0.5,
+                    ecolor="black", capsize=5, capthick=1.5, linewidth=1.5,
+                    zorder=10)
+
+    ax.axhline(np.nanmean(null), color="#95a5a6", linestyle="-", linewidth=2,
+               alpha=0.7, zorder=5)
+
+    ax.set_xlim(-0.5, 1.5)
+    ax.set_ylim(-0.8, 0.8)
+    ax.set_xticks([0, 1])
+    ax.set_xticklabels(["Same\nParent", "Cross\nParents"])
+    ax.yaxis.set_major_locator(MultipleLocator(0.2))
+    ax.set_ylabel("Pairwise selection correlation")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
     return save(fig, "fig2d_selection_correlation")
 
 

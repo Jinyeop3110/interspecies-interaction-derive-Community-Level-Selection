@@ -37,6 +37,13 @@ MEDIUM_COLORS = {
 SWAPPED_COLOR = "grey"
 SWAPPED_ALPHA = 0.2
 
+#: Marker shape by initial species-pool size, as the Fig. 1e and 4c captions
+#: specify.
+POOL_MARKERS = {6: "o", 12: "s", 24: "^"}
+
+#: Outcome classes bottom to top in the stacked fraction panels.
+OUTCOME_ORDER = ["Dominance", "Mixture", "Restructuring"]
+
 MM = 0.1 / 2.54  # matplotlib works in inches; the figures are specified in mm
 
 
@@ -122,3 +129,79 @@ def save(fig, name):
     plt.close(fig)
     print(f"  wrote {path.relative_to(REPO_ROOT)}")
     return path
+
+
+def stacked_outcome_bar(ax, table, annotate=None, width=0.6):
+    """Draw one stacked outcome bar for a single condition.
+
+    The published fraction panels are a single stacked bar per condition,
+    Dominance at the bottom, then Mixture, then Restructuring, at alpha 0.85 --
+    not grouped bars. ``annotate`` may be ``"count"`` or ``"percent"`` to label
+    each band.
+    """
+    import numpy as _np
+
+    codes = {"Dominance": 0, "Mixture": 1, "Restructuring": 2}
+    total = len(table)
+    bottom = 0.0
+    for name in OUTCOME_ORDER:
+        n = int((table.outcome == codes[name]).sum())
+        fraction = n / total if total else 0.0
+        ax.bar(0, fraction, bottom=bottom, width=width,
+               color=OUTCOME_COLORS[name], alpha=0.85, linewidth=0)
+        if annotate and fraction > 0.03:
+            label = f"{name[0]} (n={n})" if annotate == "count" else f"{fraction:.0%}"
+            ax.text(0, bottom + fraction / 2, label, ha="center", va="center",
+                    fontsize=6, style="italic")
+        bottom += fraction
+
+    ax.set_xlim(-0.5, 0.5)
+    ax.set_ylim(0, 1)
+    ax.set_xticks([])
+    ax.set_yticks([0, 1])
+    ax.set_yticklabels(["0", "1"])
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+
+
+def stacked_outcome_series(ax, fractions, separators=True, annotate=True):
+    """Stacked step-fill of outcome fractions across conditions.
+
+    This is the ``create_phase_diagram`` idiom from the working tree: a
+    step-filled area chart with dashed separators between conditions and the
+    percentages written into each band, rather than grouped bars with a legend.
+    """
+    import numpy as _np
+
+    labels = list(fractions.index)
+    n = len(labels)
+    x = _np.arange(n + 1)
+
+    bottom = _np.zeros(n + 1)
+    for name in OUTCOME_ORDER:
+        values = _np.append(fractions[name].to_numpy(dtype=float), 0.0)
+        ax.fill_between(x, bottom, bottom + values, step="post",
+                        color=OUTCOME_COLORS[name], alpha=0.85, edgecolor="none")
+        if annotate:
+            for i in range(n):
+                if values[i] > 0.04:
+                    ax.text(i + 0.5, bottom[i] + values[i] / 2,
+                            f"{values[i]:.0%}", ha="center", va="center",
+                            fontsize=6)
+        bottom = bottom + values
+
+    if separators:
+        for boundary in range(1, n):
+            ax.axvline(boundary, color="black", linestyle="--",
+                       alpha=0.5, linewidth=1)
+
+    ax.set_xlim(0, n)
+    ax.set_ylim(0, 1)
+    ax.set_xticks([i + 0.5 for i in range(n)])
+    ax.set_xticklabels(labels)
+    ax.set_yticks([0, 1])
+    ax.set_yticklabels(["0", "1"])
+    for tick, label in zip(ax.get_xticklabels(), labels):
+        if label in MEDIUM_COLORS:
+            tick.set_color(MEDIUM_COLORS[label])
+            tick.set_style("italic")

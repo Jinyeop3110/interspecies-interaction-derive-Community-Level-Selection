@@ -58,7 +58,11 @@ def panel_a(table):
         histogram = axes[1, column]
         pdi = parental_dominance_index(events.x1.to_numpy(), events.x2.to_numpy())
         histogram.hist(pdi[np.isfinite(pdi)], bins=20, range=(0, 1),
-                       color="#7a7a7a", linewidth=0)
+                       density=True, color=OUTCOME_COLORS["Dominance"],
+                       alpha=0.85, linewidth=0)
+        histogram.set_ylim(0, 10)
+        histogram.set_yticks([0, 10])
+        histogram.set_xticks([0, 0.5, 1])
         histogram.set_xlabel("Parental Dominance Index")
         histogram.set_xlim(0, 1)
         if column == 0:
@@ -68,26 +72,39 @@ def panel_a(table):
 
 
 def panel_b(table):
-    """Outcome fractions across the interaction-strength sweep."""
+    """Outcome fractions across the interaction-strength sweep.
+
+    Stacked step-fill with the three representative interaction strengths
+    marked, and the class letters written into the bands, as published.
+    """
     fractions = outcome_fractions(table)
     print(fractions.to_string(float_format=lambda x: f"{x:.3f}"))
 
-    fig, ax = plt.subplots(figsize=(62 * MM, 45 * MM))
+    fig, ax = plt.subplots(figsize=(60 * MM, 60 * MM), facecolor="w", edgecolor="k")
     mu_values = fractions.index.to_numpy(dtype=float)
 
     bottom = np.zeros(len(mu_values))
+    midpoint = len(mu_values) // 2
     for name in ("Dominance", "Mixture", "Restructuring"):
         values = fractions[name].to_numpy(dtype=float)
         ax.fill_between(mu_values, bottom, bottom + values, step="post",
-                        color=OUTCOME_COLORS[name], alpha=0.7, label=name,
-                        linewidth=0)
-        bottom += values
+                        color=OUTCOME_COLORS[name], alpha=0.85, linewidth=0)
+        if values[midpoint] > 0.08:
+            ax.text(mu_values[midpoint], bottom[midpoint] + values[midpoint] / 2,
+                    name[0], ha="center", va="center", fontsize=8,
+                    style="italic")
+        bottom = bottom + values
+
+    for mu in REPRESENTATIVE_MU:
+        ax.axvline(mu, color="black", linestyle="--", alpha=0.5, linewidth=1)
+        ax.text(mu, 1.02, f"{mu}", ha="center", va="bottom", fontsize=6)
 
     ax.set_xlabel(r"Interaction Strength $\mu$")
     ax.set_ylabel("Fraction")
     ax.set_xlim(mu_values.min(), mu_values.max())
     ax.set_ylim(0, 1)
-    ax.legend(fontsize=5, loc="center left", bbox_to_anchor=(1.02, 0.5))
+    ax.set_yticks([0, 1])
+    ax.set_yticklabels(["0", "1"])
     return save(fig, "fig3b_outcome_fractions")
 
 

@@ -17,9 +17,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import matplotlib.pyplot as plt  # noqa: E402
 from _common import (  # noqa: E402
-    MEDIUM_COLORS, MM, OUTCOME_COLORS, SWAPPED_ALPHA, SWAPPED_COLOR,
-    draw_similarity_boundaries, save, use_paper_style,
-)  # noqa: E402
+    MEDIUM_COLORS, MM, POOL_MARKERS, SWAPPED_ALPHA, SWAPPED_COLOR,
+    draw_similarity_boundaries, save, stacked_outcome_series, use_paper_style,
+)
 
 from coalescence import io, outcomes  # noqa: E402
 
@@ -38,34 +38,41 @@ def panel_c(table):
         label = io.MEDIUM_LABELS[medium]
         group = table[table.Medium == medium]
 
-        ax.scatter(group.x1, group.x2, s=25, color=MEDIUM_COLORS[label],
-                   alpha=0.7, linewidths=0)
-        ax.scatter(group.x2, group.x1, s=25, color=SWAPPED_COLOR,
-                   alpha=SWAPPED_ALPHA, linewidths=0)
+        for pool, marker in POOL_MARKERS.items():
+            subset = group[group.pool == pool]
+            if subset.empty:
+                continue
+            ax.scatter(subset.x1, subset.x2, s=25, marker=marker,
+                       color=MEDIUM_COLORS[label], alpha=0.7, linewidths=0,
+                       label=f"Pool {pool}" if medium == io.MEDIA_ORDER[0] else None)
+        for pool, marker in POOL_MARKERS.items():
+            subset = group[group.pool == pool]
+            if subset.empty:
+                continue
+            ax.scatter(subset.x2, subset.x1, s=25, marker=marker,
+                       color=SWAPPED_COLOR, alpha=SWAPPED_ALPHA, linewidths=0)
 
         draw_similarity_boundaries(ax)
-        ax.set_title(f"{label} (n = {len(group)})", fontsize=7)
+        ax.set_title(label, fontsize=7, style="italic",
+                     color=MEDIUM_COLORS[label])
         ax.set_xlabel("Similarity(C,A)")
 
     axes[0].set_ylabel("Similarity(C,B)")
+    axes[0].legend(loc="upper right", fontsize=6, frameon=False)
     return save(fig, "fig4c_similarity_map")
 
 
 def panel_d(fractions):
-    """Stacked outcome fractions along the nutrient gradient."""
-    fig, ax = plt.subplots(figsize=(55 * MM, 45 * MM))
+    """Outcome fractions across the nutrient gradient.
 
-    labels = list(fractions.index)
-    bottom = np.zeros(len(labels))
-    for outcome in ("Dominance", "Mixture", "Restructuring"):
-        values = fractions[outcome].to_numpy(dtype=float)
-        ax.bar(labels, values, bottom=bottom, color=OUTCOME_COLORS[outcome],
-               alpha=0.85, width=0.65, label=outcome, edgecolor="none")
-        bottom += values
-
-    ax.set_ylim(0, 1)
-    ax.set_ylabel("Fraction")
-    ax.legend(fontsize=6, loc="upper right", bbox_to_anchor=(1.45, 1.0))
+    A stacked step-fill with dashed separators between media and the
+    percentages written into each band, as in the published panel, rather than
+    grouped bars with an external legend.
+    """
+    fig, ax = plt.subplots(figsize=(60 * MM, 60 * MM), facecolor="w", edgecolor="k")
+    stacked_outcome_series(ax, fractions)
+    ax.set_xlabel("Media")
+    ax.set_ylabel("Coalescence outcome fraction")
     return save(fig, "fig4d_outcome_fractions")
 
 

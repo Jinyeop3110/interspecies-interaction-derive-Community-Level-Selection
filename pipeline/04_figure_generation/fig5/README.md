@@ -18,6 +18,11 @@ python pipeline/04_figure_generation/fig5/generate_figure.py
 - `data/processed_Sequences_synthetic.xlsx`
 - Pairwise invasion assay outcomes — **not in the Dryad archive**
 
+## Known remaining differences from the published panels
+
+- Panel c is not generated; the pairwise invasion assay results are not in the
+  archive.
+
 ## Panel b: reproduction
 
 The dominant species is the most abundant species in a stabilized parental

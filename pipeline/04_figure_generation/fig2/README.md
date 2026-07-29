@@ -21,6 +21,14 @@ python pipeline/04_figure_generation/fig2/generate_figure.py --replicates 300
 Everything here is simulated, so the script runs the model rather than reading
 archived data. Expect a few minutes at the default replicate count.
 
+## Known remaining differences from the published panels
+
+- **2b is a scatter; the published panel is a 2-D density heatmap** with a
+  `rel.density` colourbar, and it is accompanied by a stacked outcome bar that
+  this script does not produce.
+- Panel c reproduces the strip-plot idiom but the *t* statistic still differs
+  (see below).
+
 ## Panel c: the assembly effect
 
 Competitive exclusion removes strongly competing species during assembly, so

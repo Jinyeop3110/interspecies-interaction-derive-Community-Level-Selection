@@ -19,7 +19,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import matplotlib.pyplot as plt  # noqa: E402
-from _common import MEDIUM_COLORS, MM, save, use_paper_style  # noqa: E402
+from _common import MEDIUM_COLORS, MM, save, use_paper_style  # noqa: E402  # noqa: E402
 
 from coalescence import io  # noqa: E402
 
@@ -43,7 +43,7 @@ def dominant_fraction_by_medium(metadata, sequences):
     (n = 30 per medium) rather than the individual culture.
     """
     columns = io.composition_matrix(sequences)
-    rows = {}
+    rows, values = {}, {}
 
     for medium in io.MEDIA_ORDER:
         selection = metadata[
@@ -57,32 +57,58 @@ def dominant_fraction_by_medium(metadata, sequences):
             for s in selection.SampleIDX
         ]
 
-        per_community = selection.groupby("CommunityIDX")["fraction"].mean().dropna()
+        by_community = selection.groupby("CommunityIDX")["fraction"].mean().dropna()
         rows[io.MEDIUM_LABELS[medium]] = {
-            "mean": per_community.mean(),
-            "sem": per_community.std(ddof=1) / np.sqrt(len(per_community)),
-            "n": len(per_community),
+            "mean": by_community.mean(),
+            "sem": by_community.std(ddof=1) / np.sqrt(len(by_community)),
+            "n": len(by_community),
         }
+        values[io.MEDIUM_LABELS[medium]] = by_community.to_numpy()
 
-    return pd.DataFrame(rows).T
+    return pd.DataFrame(rows).T, values
 
 
-def panel_b(summary):
-    """Dominant-species abundance across the nutrient gradient."""
-    fig, ax = plt.subplots(figsize=(50 * MM, 45 * MM))
+def panel_b(summary, per_community):
+    """Dominant-species abundance across the nutrient gradient.
+
+    Pale bars at alpha 0.3 with the individual parental communities jittered
+    over them, error bars in a darker shade of the medium colour, and the
+    percentage written above each bar -- the idiom of the published panel.
+    """
+    rng = np.random.default_rng(0)
+    fig, ax = plt.subplots(figsize=(35 * MM, 40 * MM), facecolor="w", edgecolor="k")
 
     labels = list(summary.index)
-    ax.bar(
-        labels,
-        summary["mean"].to_numpy(dtype=float),
-        yerr=summary["sem"].to_numpy(dtype=float),
-        color=[MEDIUM_COLORS[label] for label in labels],
-        alpha=0.85, width=0.6, edgecolor="none",
-        error_kw={"elinewidth": 0.8, "capthick": 0.8, "capsize": 2},
-    )
+    positions = np.arange(len(labels))
 
+    for position, label in zip(positions, labels):
+        colour = MEDIUM_COLORS[label]
+        mean = float(summary.loc[label, "mean"])
+        sem = float(summary.loc[label, "sem"])
+
+        ax.bar(position, mean, width=0.8, color=colour, alpha=0.3, linewidth=0.5,
+               edgecolor=colour)
+
+        values = per_community[label]
+        jitter = 0.1 * (rng.random(len(values)) - 0.5)
+        ax.scatter(position + jitter, values, s=0.4, color=colour, alpha=0.3,
+                   linewidths=0)
+
+        ax.errorbar(position, mean, yerr=sem, fmt="none", ecolor=colour,
+                    elinewidth=1.2, capsize=3, capthick=1.2, alpha=0.5)
+        ax.text(position, mean + 0.02, f"{round(mean * 100)}%", ha="center",
+                va="bottom", fontsize=6)
+
+    ax.set_xlim(-0.5, len(labels) - 0.5)
     ax.set_ylim(0, 1)
-    ax.set_ylabel("dominant species relative abundance")
+    ax.set_xticks(positions)
+    ax.set_xticklabels(labels)
+    for tick, label in zip(ax.get_xticklabels(), labels):
+        tick.set_color(MEDIUM_COLORS[label])
+        tick.set_style("italic")
+    ax.set_ylabel("Dominant species relative abundance")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
     return save(fig, "fig5b_dominant_species_abundance")
 
 
@@ -91,11 +117,12 @@ def main():
     metadata = io.load_metadata()
     sequences = io.load_sequences("synthetic")
 
-    summary = dominant_fraction_by_medium(metadata, sequences)
+    summary, per_community = dominant_fraction_by_medium(metadata, sequences)
     print("Figure 5b - dominant species relative abundance")
     print(summary.to_string(float_format=lambda x: f"{x:.3f}"))
+    print("  published: 44 +- 2%, 51 +- 5%, 67 +- 4%")
 
-    panel_b(summary)
+    panel_b(summary, per_community)
 
 
 if __name__ == "__main__":

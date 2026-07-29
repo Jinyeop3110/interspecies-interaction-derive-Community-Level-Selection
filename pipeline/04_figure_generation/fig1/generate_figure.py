@@ -2,69 +2,73 @@
 """Figure 1 panels: coalescence of synthetic communities frequently yields Dominance.
 
 Generates:
-  1e  coalescence outcomes in similarity space, Base medium, and the
-      accompanying outcome-fraction bar
+  1e  outcomes in similarity space, Base medium, plus the stacked outcome bar
+      drawn beside it
 
-Panel 1d is a time course and is NOT generated here; see README.md.
+Panel 1d is a time course across seven growth-dilution cycles and is NOT
+generated here; the archived tables carry only the final timepoint. See
+README.md.
 
-Run from anywhere:  python figures/fig1/make_panels.py
+    python pipeline/04_figure_generation/fig1/generate_figure.py
 """
 
 import sys
 from pathlib import Path
 
-import numpy as np
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import matplotlib.pyplot as plt  # noqa: E402
 from _common import (  # noqa: E402
-    MEDIUM_COLORS, MM, OUTCOME_COLORS, SWAPPED_ALPHA, SWAPPED_COLOR,
-    draw_similarity_boundaries, save, use_paper_style,
-)  # noqa: E402
+    MEDIUM_COLORS, MM, POOL_MARKERS, SWAPPED_ALPHA, SWAPPED_COLOR,
+    draw_similarity_boundaries, save, stacked_outcome_bar, use_paper_style,
+)
 
-from coalescence import io, outcomes  # noqa: E402
+from coalescence import outcomes  # noqa: E402
 
 #: Figure 1 characterizes the standard condition before the nutrient gradient
 #: is introduced in Figure 4.
 MEDIUM = "M"
 
 
-def panel_e(table):
+def panel_e_map(table):
     """Similarity map for the Base medium.
 
-    Grey points are the same events with the two parental labels swapped; the
-    map has no intrinsic parent ordering.  See figures/fig4/README.md.
-    """
-    fig, ax = plt.subplots(figsize=(60 * MM, 60 * MM))
+    Marker shape encodes the initial species-pool size, as the caption
+    specifies: circles for 6 species, squares for 12, triangles for 24.
 
-    # Originals draw the coloured points first and the swapped grey twins on
-    # top, so the grey cloud reads as the mirrored counterpart.
-    ax.scatter(table.x1, table.x2, s=25, color=MEDIUM_COLORS["Base"],
-               alpha=0.7, linewidths=0)
-    ax.scatter(table.x2, table.x1, s=25, color=SWAPPED_COLOR,
-               alpha=SWAPPED_ALPHA, linewidths=0)
+    Every event is plotted twice, once under the original parental labelling
+    and once with the labels swapped. The map has no intrinsic ordering of the
+    two parents, so showing both makes that symmetry explicit. Coloured points
+    are drawn first and the grey twins over them, as in the originals.
+    """
+    fig, ax = plt.subplots(figsize=(60 * MM, 60 * MM), facecolor="w", edgecolor="k")
+
+    for pool, marker in POOL_MARKERS.items():
+        group = table[table.pool == pool]
+        if group.empty:
+            continue
+        ax.scatter(group.x1, group.x2, s=25, marker=marker,
+                   color=MEDIUM_COLORS["Base"], alpha=0.7, linewidths=0,
+                   label=f"Pool {pool}")
+    for pool, marker in POOL_MARKERS.items():
+        group = table[table.pool == pool]
+        if group.empty:
+            continue
+        ax.scatter(group.x2, group.x1, s=25, marker=marker,
+                   color=SWAPPED_COLOR, alpha=SWAPPED_ALPHA, linewidths=0)
 
     draw_similarity_boundaries(ax)
-
     ax.set_xlabel("Similarity(C,A)")
     ax.set_ylabel("Similarity(C,B)")
-    ax.set_title(f"Base (n = {len(table)})", fontsize=7)
+    ax.legend(loc="upper right", fontsize=6, frameon=False)
     return save(fig, "fig1e_similarity_map")
 
 
-def panel_e_fractions(fractions):
-    """Outcome-fraction bar shown alongside the similarity map in panel e."""
-    fig, ax = plt.subplots(figsize=(40 * MM, 45 * MM))
-
-    names = ["Dominance", "Mixture", "Restructuring"]
-    values = [fractions.loc["Base", name] for name in names]
-    ax.bar(names, values, color=[OUTCOME_COLORS[n] for n in names],
-           alpha=0.85, width=0.6, edgecolor="none")
-
-    ax.set_ylim(0, 1)
-    ax.set_ylabel("Fraction")
-    ax.tick_params(axis="x", rotation=45)
+def panel_e_bar(table):
+    """Stacked outcome bar for the Base medium, annotated with counts."""
+    fig, ax = plt.subplots(figsize=(22 * MM, 60 * MM), facecolor="w", edgecolor="k")
+    stacked_outcome_bar(ax, table, annotate="count")
+    ax.set_ylabel("Coalescence outcome fraction")
     return save(fig, "fig1e_outcome_fractions")
 
 
@@ -72,13 +76,18 @@ def main():
     use_paper_style()
     table = outcomes.outcome_table("synthetic")
     base_only = table[table.Medium == MEDIUM]
-    fractions = outcomes.outcome_fractions(table)
 
-    print(f"Figure 1 - Base medium (n = {len(base_only)})")
-    print(fractions.loc[["Base"]].to_string(float_format=lambda x: f"{x:.3f}"))
+    counts = base_only.outcome.value_counts()
+    print(f"Figure 1 - Base medium, n = {len(base_only)}")
+    for code, name in ((0, "Dominance"), (2, "Restructuring"), (1, "Mixture")):
+        n = int(counts.get(code, 0))
+        print(f"  {name:14s} n = {n:3d}  ({n / len(base_only):.0%})")
+    print("  published:       Dominance 54 (65%), Restructuring 26 (31%), "
+          "Mixture 3 (4%)")
+    print(f"  pool sizes:      {base_only.pool.value_counts().sort_index().to_dict()}")
 
-    panel_e(base_only)
-    panel_e_fractions(fractions)
+    panel_e_map(base_only)
+    panel_e_bar(base_only)
 
 
 if __name__ == "__main__":

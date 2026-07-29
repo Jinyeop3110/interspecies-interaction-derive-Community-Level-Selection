@@ -8,7 +8,20 @@ from .decomposition import (
     classify, decompose, parental_dominance_index, retention_and_asymmetry,
 )
 
-__all__ = ["outcome_table", "outcome_fractions"]
+__all__ = ["outcome_table", "outcome_fractions", "POOL_RANGES", "pool_size"]
+
+#: Coalesced-community index ranges per initial species-pool size. The
+#: experimental design assigns consecutive index blocks to each richness class,
+#: so the pool size is recoverable from CommunityIDX alone.
+POOL_RANGES = {6: (0, 14), 12: (14, 41), 24: (41, 47)}
+
+
+def pool_size(community_index):
+    """Initial species-pool size of a coalesced community, or nan if unknown."""
+    for size, (low, high) in POOL_RANGES.items():
+        if low < community_index <= high:
+            return size
+    return np.nan
 
 
 def outcome_table(source="synthetic", apply_exclusions=True):
@@ -53,6 +66,8 @@ def outcome_table(source="synthetic", apply_exclusions=True):
             {
                 "SampleIDX": event.SampleIDX,
                 "Medium": event.Medium,
+                "CommunityIDX": event.CommunityIDX,
+                "pool": pool_size(int(event.CommunityIDX)),
                 "Replicate": event.get("Replicate", np.nan),
                 "x1": x1,
                 "x2": x2,

@@ -19,6 +19,10 @@ python pipeline/04_figure_generation/fig4/generate_figure.py
   sample IDs
 - `data/processed_Sequences_synthetic.xlsx` — composition vectors
 
+## Known remaining differences from the published panels
+
+- The **marginal PDI histograms** below each map are not drawn.
+
 ## Panel c: what the grey points mean
 
 Every event is plotted twice: once under the original parental labelling
