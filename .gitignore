@@ -2,9 +2,11 @@
 data/*
 !data/README.md
 
-# Generated panels
+# Generated panels and analysis output
 figures/*/panels/*
 !figures/*/panels/.gitkeep
+analysis/output/*
+!analysis/output/.gitkeep
 
 __pycache__/
 *.pyc

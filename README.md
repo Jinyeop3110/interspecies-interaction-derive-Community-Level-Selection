@@ -58,6 +58,7 @@ pipeline/             raw reads -> processed tables
   03_simulation/      generalized Lotka-Volterra simulations (seeded, Python)
 src/coalescence/      shared analysis library, imported by every figure script
 figures/fig1..fig6/   one directory per main-text figure
+analysis/             Extended Data and Supplementary scripts, as they were run
 tests/                reproduction checks against published values
 tools/                release manifest and drift check
 ```
