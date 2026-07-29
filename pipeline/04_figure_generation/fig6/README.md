@@ -1,7 +1,7 @@
 # Figure 6 — Dominance patterns in natural sample-derived communities
 
 ```bash
-python figures/fig6/make_panels.py
+python pipeline/04_figure_generation/fig6/make_panels.py
 ```
 
 ## Panels

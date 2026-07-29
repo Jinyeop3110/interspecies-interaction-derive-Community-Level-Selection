@@ -1,7 +1,7 @@
 # Figure 3 — Interaction strength controls the transition between outcome types
 
 ```bash
-python figures/fig3/make_panels.py --replicates 200
+python pipeline/04_figure_generation/fig3/make_panels.py --replicates 200
 ```
 
 Everything here is simulated, so the script runs the model rather than reading

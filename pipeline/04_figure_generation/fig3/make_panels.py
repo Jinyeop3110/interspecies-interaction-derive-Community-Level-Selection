@@ -18,7 +18,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "pipeline" / "03_simulation"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "03_simulation"))
 
 import matplotlib.pyplot as plt  # noqa: E402
 from _common import MM, OUTCOME_COLORS, save, use_paper_style  # noqa: E402

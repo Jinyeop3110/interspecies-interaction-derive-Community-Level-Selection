@@ -23,13 +23,13 @@ communities), `natural` (environmental sample-derived communities) or
 | `Metadata.xlsx` | one per community | Experimental design factors (timepoint, origin, medium, coalescence type, replicate, community index) plus endpoint OD, pH and growth-curve readings. Loaded by `io.load_metadata()`. |
 | `CoalescenceRecipe.xlsx` | one per coalescence | Which two parental community indices were mixed to produce each coalesced community. Sheet 1 synthetic, sheet 2 natural. Loaded by `io.load_coalescence_recipe()`. |
 
-| `processed_CoalescenceEvent_simulation_uniform.xlsx` | one per event | Simulated events under the uniform interaction ensemble. Loaded by the Extended Data / Supplementary harness in `analysis/`. |
+| `processed_CoalescenceEvent_simulation_uniform.xlsx` | one per event | Simulated events under the uniform interaction ensemble. Loaded by the Extended Data / Supplementary harness in `pipeline/04_figure_generation/extended_supplementary/`. |
 | `M_OTUtableGreenGenes.csv` | one per sample | Raw DADA2 ASV counts before processing. Needed by analyses that work from read counts rather than relative abundance, such as the additive null model behind Extended Data Fig. 3. |
 
 The last four entries are not optional. `Metadata.xlsx` and
-`CoalescenceRecipe.xlsx` are required by `figures/fig5`,
-`figures/supplementary` and the processing pipeline; the simulation-uniform
-table and the raw count table are required by `analysis/`. All of them must be
+`CoalescenceRecipe.xlsx` are required by `pipeline/04_figure_generation/fig5`,
+`pipeline/04_figure_generation/supplementary` and the processing pipeline; the simulation-uniform
+table and the raw count table are required by `pipeline/04_figure_generation/extended_supplementary/`. All of them must be
 in the archive alongside the six processed tables.
 
 ### Key columns

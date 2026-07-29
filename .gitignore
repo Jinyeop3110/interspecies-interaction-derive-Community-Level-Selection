@@ -3,10 +3,10 @@ data/*
 !data/README.md
 
 # Generated panels and analysis output
-figures/*/panels/*
-!figures/*/panels/.gitkeep
-analysis/output/*
-!analysis/output/.gitkeep
+pipeline/04_figure_generation/*/panels/*
+!pipeline/04_figure_generation/*/panels/.gitkeep
+pipeline/04_figure_generation/extended_supplementary/output/*
+!pipeline/04_figure_generation/extended_supplementary/output/.gitkeep
 
 __pycache__/
 *.pyc

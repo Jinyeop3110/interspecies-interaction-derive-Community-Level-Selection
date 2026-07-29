@@ -11,7 +11,7 @@ For new work, prefer the library in [`../src/coalescence`](../src/coalescence).
 ## Running them
 
 ```bash
-python analysis/analyze_additive_null.py
+python pipeline/04_figure_generation/extended_supplementary/analyze_additive_null.py
 ```
 
 Each script writes its figures and tables to `output/`, which is not tracked.

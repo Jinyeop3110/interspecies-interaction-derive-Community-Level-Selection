@@ -7,7 +7,7 @@ the scripts run from their own directory without installation.
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 
 import matplotlib as mpl  # noqa: E402

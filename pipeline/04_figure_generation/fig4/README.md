@@ -1,7 +1,7 @@
 # Figure 4 — Nutrient concentration modulates invasion resistance and coalescence outcomes
 
 ```bash
-python figures/fig4/make_panels.py
+python pipeline/04_figure_generation/fig4/make_panels.py
 ```
 
 ## Panels

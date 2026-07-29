@@ -1,7 +1,7 @@
 # Figure 5 — Predictability of Dominance direction
 
 ```bash
-python figures/fig5/make_panels.py
+python pipeline/04_figure_generation/fig5/make_panels.py
 ```
 
 ## Panels

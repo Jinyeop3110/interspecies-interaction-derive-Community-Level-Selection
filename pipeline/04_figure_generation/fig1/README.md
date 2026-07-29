@@ -1,7 +1,7 @@
 # Figure 1 — Coalescence of synthetic communities frequently yields Dominance
 
 ```bash
-python figures/fig1/make_panels.py
+python pipeline/04_figure_generation/fig1/make_panels.py
 ```
 
 ## Panels

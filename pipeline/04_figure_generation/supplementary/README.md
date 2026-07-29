@@ -8,7 +8,7 @@ not covered; their generating code exists but has not been prepared for release.
 | 14 | Parental OD difference vs PDI, and parental endpoint OD vs endpoint pH | `make_supp_fig14_od_ph.py` |
 
 ```bash
-python figures/supplementary/make_supp_fig14_od_ph.py
+python pipeline/04_figure_generation/supplementary/make_supp_fig14_od_ph.py
 ```
 
 Panels are written to `panels/`, like every other figure directory.
@@ -20,7 +20,7 @@ asset, point it there explicitly:
 
 ```bash
 COALESCENCE_FIGURE_OUT=../../../latex/supplementary_figs \
-    python figures/supplementary/make_supp_fig14_od_ph.py
+    python pipeline/04_figure_generation/supplementary/make_supp_fig14_od_ph.py
 ```
 
 The output basename is `supp_fig14_od_vs_ph`; the manuscript includes
