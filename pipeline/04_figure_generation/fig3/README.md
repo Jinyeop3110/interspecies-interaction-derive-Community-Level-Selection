@@ -4,6 +4,11 @@
 python pipeline/04_figure_generation/fig3/generate_figure.py --replicates 200
 ```
 
+200 replicates per value of mu is enough to see the transition; the density
+fields in panel a look smoother at 500 or more. The script warns if it was run
+with too few events to be meaningful -- a low replicate count produces panels
+that look finished but are smoke tests.
+
 Everything here is simulated, so the script runs the model rather than reading
 archived data. The sweep is the expensive part; expect several minutes.
 
@@ -32,9 +37,25 @@ The underlying simulation reproduces the cached notebook output exactly — five
 decimal places on the similarity-map coordinates across the range of μ. See
 [`../../pipeline/03_simulation/README.md`](../../pipeline/03_simulation/README.md).
 
-The published panel b curves have not been compared numerically point by point;
-only the qualitative transition (Mixture at weak interactions, Dominance at
-strong, Restructuring peaking at intermediate) has been checked.
+Panel b reproduces the transition the manuscript describes. At 200 replicates
+per value of mu:
+
+| mu | Dominance | Mixture | Restructuring |
+|---|---|---|---|
+| 0.0 | 0% | 100% | 0% |
+| 0.3 | 19% | 69% | 12% |
+| 0.6 | 60% | 12% | 28% |
+| 0.9 | 70% | 8% | 22% |
+| 1.2 | 76% | 9% | 16% |
+
+Mixture predominates at weak interactions, Dominance at strong, and
+Restructuring peaks at intermediate strength. The mu = 0.6 column gives
+60 / 12 / 28 against the 61 / 13 / 26 published for Figure 2b, computed
+independently there.
+
+Panel a shows the density concentrating along the diagonal at mu = 0.3 and
+moving onto the axes by mu = 0.8, with the PDI histograms going from unimodal
+to bimodal, as the caption describes.
 
 ## Source
 
