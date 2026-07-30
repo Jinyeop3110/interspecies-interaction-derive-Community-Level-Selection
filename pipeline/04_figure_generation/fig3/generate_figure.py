@@ -22,7 +22,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "03_simulation"))
 
 import matplotlib.pyplot as plt  # noqa: E402
 from _common import (  # noqa: E402
-    MM, OUTCOME_COLORS, draw_similarity_boundaries, save, use_paper_style,
+    DENSITY_RAMP, MM, OUTCOME_COLORS, density_map,
+    draw_similarity_boundaries, marginal_pdi_histogram, save, use_paper_style,
 )  # noqa: E402
 
 from coalescence.decomposition import parental_dominance_index  # noqa: E402
@@ -61,12 +62,7 @@ def panel_a(table):
         # PDI histogram: unimodal at weak interactions, bimodal at strong.
         histogram = axes[1, column]
         pdi = parental_dominance_index(events.x1.to_numpy(), events.x2.to_numpy())
-        histogram.hist(pdi[np.isfinite(pdi)], bins=20, range=(0, 1),
-                       density=True, color=OUTCOME_COLORS["Dominance"],
-                       alpha=0.85, linewidth=0)
-        histogram.set_ylim(0, 10)
-        histogram.set_yticks([0, 10])
-        histogram.set_xticks([0, 0.5, 1])
+        marginal_pdi_histogram(histogram, pdi, 1 - pdi, DENSITY_RAMP[0])
         histogram.set_xlabel("Parental Dominance Index")
         histogram.set_xlim(0, 1)
         if column == 0:

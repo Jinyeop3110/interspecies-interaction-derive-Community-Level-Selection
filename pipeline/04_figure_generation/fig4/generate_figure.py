@@ -18,7 +18,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import matplotlib.pyplot as plt  # noqa: E402
 from _common import (  # noqa: E402
     MEDIUM_COLORS, MM, POOL_MARKERS, SWAPPED_ALPHA, SWAPPED_COLOR,
-    draw_similarity_boundaries, save, stacked_outcome_series, use_paper_style,
+    draw_similarity_boundaries, marginal_pdi_histogram, save,
+    stacked_outcome_series, use_paper_style,
 )
 
 from coalescence import io, outcomes  # noqa: E402
@@ -32,9 +33,14 @@ def panel_c(table):
     has no intrinsic parent ordering, so plotting both makes the symmetry of
     the space explicit rather than implying a preferred axis.
     """
-    fig, axes = plt.subplots(1, 3, figsize=(180 * MM, 60 * MM), sharex=True, sharey=True)
+    # Maps on top, the marginal PDI histograms beneath, as published.
+    fig, axes = plt.subplots(2, 3, figsize=(180 * MM, 83 * MM),
+                             gridspec_kw={"height_ratios": [60, 22.6]},
+                             facecolor="w", edgecolor="k")
+    fig.subplots_adjust(wspace=0.3, hspace=0.45)
 
-    for ax, medium in zip(axes, io.MEDIA_ORDER):
+    for column, medium in enumerate(io.MEDIA_ORDER):
+        ax = axes[0, column]
         label = io.MEDIUM_LABELS[medium]
         group = table[table.Medium == medium]
 
@@ -53,12 +59,21 @@ def panel_c(table):
                        color=SWAPPED_COLOR, alpha=SWAPPED_ALPHA, linewidths=0)
 
         draw_similarity_boundaries(ax)
+        ax.set_xticks([0, 1])
+        ax.set_yticks([0, 1])
         ax.set_title(label, fontsize=7, style="italic",
                      color=MEDIUM_COLORS[label])
-        ax.set_xlabel("Similarity(C,A)")
 
-    axes[0].set_ylabel("Similarity(C,B)")
-    axes[0].legend(loc="upper right", fontsize=6, frameon=False)
+        histogram = axes[1, column]
+        marginal_pdi_histogram(histogram, group.PDI.to_numpy(dtype=float),
+                               1 - group.PDI.to_numpy(dtype=float),
+                               MEDIUM_COLORS[label])
+        if column == 1:
+            histogram.set_xlabel("Parental Dominance Index")
+
+    axes[0, 0].set_ylabel("Similarity(C,B)")
+    axes[0, 1].set_xlabel("Similarity(C,A)")
+    axes[1, 0].set_ylabel("Density")
     return save(fig, "fig4c_similarity_map")
 
 

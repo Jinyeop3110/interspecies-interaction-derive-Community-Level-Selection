@@ -20,10 +20,6 @@ python pipeline/04_figure_generation/fig6/generate_figure.py
 Communities derive from six environmental samples (soil, compost, decomposing
 organic matter); 15 unique pairs × 2 replicates = 30 events per medium.
 
-## Known remaining differences from the published panels
-
-- The **marginal PDI histograms** below each map are not drawn.
-
 ## Grey points
 
 As in Fig. 4c, each event is plotted twice: coloured under the original parental

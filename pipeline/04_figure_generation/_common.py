@@ -44,6 +44,9 @@ POOL_MARKERS = {6: "o", 12: "s", 24: "^"}
 #: Marker alpha deepens with pool size in the published panels.
 POOL_ALPHAS = (0.5, 0.7, 0.9)
 
+#: Colour ramp for the simulated density maps, dark to light.
+DENSITY_RAMP = ["#802000", "#9a4a30", "#c08674", "#e4c0b6", "#ffebe6"]
+
 #: Outcome classes bottom to top in the stacked fraction panels.
 OUTCOME_ORDER = ["Dominance", "Mixture", "Restructuring"]
 
@@ -217,3 +220,56 @@ def stacked_outcome_series(ax, fractions, separators=True, annotate=True):
         if label in MEDIUM_COLORS:
             tick.set_color(MEDIUM_COLORS[label])
             tick.set_style("italic")
+
+
+def marginal_pdi_histogram(ax, pdi, swapped_pdi, colour, bins=20):
+    """Draw the PDI histogram that sits below a similarity map.
+
+    Two overlaid density histograms: the events under the original parental
+    labelling in the medium colour, and their label-swapped counterparts in
+    grey. Density is on a fixed 0-10 axis so the three media are comparable,
+    and the panel carries a full box frame rather than two spines.
+    """
+    ax.hist(swapped_pdi[np.isfinite(swapped_pdi)], bins=bins, range=(0, 1),
+            density=True, color="#808080", alpha=0.85, linewidth=0)
+    ax.hist(pdi[np.isfinite(pdi)], bins=bins, range=(0, 1),
+            density=True, color=colour, alpha=0.85, linewidth=0)
+
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 10)
+    ax.set_xticks([0, 0.5, 1])
+    ax.set_yticks([0, 10])
+    for spine in ax.spines.values():
+        spine.set_visible(True)
+        spine.set_linewidth(0.8)
+        spine.set_color("#262626")
+
+
+def density_map(ax, x1, x2, gridsize=120, bandwidth=0.15):
+    """Draw the simulated outcome map as a 2-D density field.
+
+    The published simulation panels show a smoothed density over the
+    similarity map rather than individual points, on a white-to-brown ramp.
+    Returns the mappable so the caller can attach a colourbar.
+    """
+    from matplotlib.colors import LinearSegmentedColormap
+    from scipy.stats import gaussian_kde
+
+    cmap = LinearSegmentedColormap.from_list(
+        "coalescence_density", list(reversed(DENSITY_RAMP))
+    )
+
+    # Mirror the sample across the diagonal: the map has no intrinsic parent
+    # ordering, and the published field is symmetric about it.
+    points = np.vstack([
+        np.concatenate([x1, x2]),
+        np.concatenate([x2, x1]),
+    ])
+    kde = gaussian_kde(points, bw_method=bandwidth)
+
+    grid = np.linspace(0, 1.05, gridsize)
+    xx, yy = np.meshgrid(grid, grid)
+    density = kde(np.vstack([xx.ravel(), yy.ravel()])).reshape(xx.shape)
+    density[np.hypot(xx, yy) > 1.0] = np.nan
+
+    return ax.pcolormesh(xx, yy, density, cmap=cmap, shading="auto", zorder=0)
