@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "03_simulation"))
 import matplotlib.pyplot as plt  # noqa: E402
 from _common import (  # noqa: E402
     MM, OUTCOME_COLORS, density_map, draw_similarity_boundaries, save,
-    stacked_outcome_bar, use_paper_style,
+    stacked_outcome_bar, use_paper_style, warn_if_underpowered,
 )  # noqa: E402
 
 from coalescence import io  # noqa: E402
@@ -282,6 +282,7 @@ def main():
         r, asymmetry = retention_and_asymmetry(x1, x2)
         classified.append(classify(r, asymmetry))
     table = pd.DataFrame({"outcome": classified})
+    warn_if_underpowered(len(table), "Figure 2")
     counts = table.outcome.value_counts(normalize=True)
     print(f"  n = {len(table)}  Dominance {counts.get(0, 0):.1%}  "
           f"Mixture {counts.get(1, 0):.1%}  Restructuring {counts.get(2, 0):.1%}")

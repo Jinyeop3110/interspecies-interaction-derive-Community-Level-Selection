@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 from _common import (  # noqa: E402
     DENSITY_RAMP, MM, OUTCOME_COLORS, density_map,
     draw_similarity_boundaries, marginal_pdi_histogram, save, use_paper_style,
+    warn_if_underpowered,
 )  # noqa: E402
 
 from coalescence.decomposition import parental_dominance_index  # noqa: E402
@@ -129,6 +130,8 @@ def main():
     print(f"Figure 3 - sweeping {len(mu_values)} values of mu, "
           f"{args.replicates} replicates each")
     table = sweep(mu_values, args.replicates, args.communities, args.species)
+    per_mu = len(table) // max(len(mu_values), 1)
+    warn_if_underpowered(per_mu, "Figure 3 (events per value of mu)")
 
     panel_a(table)
     panel_b(table)

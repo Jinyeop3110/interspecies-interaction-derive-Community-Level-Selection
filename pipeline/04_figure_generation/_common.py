@@ -245,12 +245,25 @@ def marginal_pdi_histogram(ax, pdi, swapped_pdi, colour, bins=20):
         spine.set_color("#262626")
 
 
-def density_map(ax, x1, x2, gridsize=120, bandwidth=0.15):
+def density_map(ax, x1, x2, gridsize=200, bandwidth=0.12, clip_percentile=99.0):
     """Draw the simulated outcome map as a 2-D density field.
 
-    The published simulation panels show a smoothed density over the
-    similarity map rather than individual points, on a white-to-brown ramp.
-    Returns the mappable so the caller can attach a colourbar.
+    The published simulation panels show a smoothed density over the similarity
+    map rather than individual points, on a white-to-brown ramp. Returns the
+    mappable so the caller can attach a colourbar.
+
+    At strong interaction the events pile up exactly on the axes -- pure
+    Dominance sits at (1, 0) and (0, 1) -- which produces near-singular spikes.
+    Left alone those spikes take the whole top of the colour scale and flatten
+    everything else to white, so the upper limit is clipped at
+    ``clip_percentile`` of the field.
+
+    Bandwidth is a genuine trade-off against sample size. Wide bandwidths give a
+    smooth field but flatten the structure; narrow ones show the structure but
+    resolve individual events as blobs. The default suits the 1,200 events the
+    published panel used. Below roughly 500 the field looks speckled no matter
+    what bandwidth is chosen, and the panel should be regenerated with more
+    replicates rather than smoothed harder.
     """
     from matplotlib.colors import LinearSegmentedColormap
     from scipy.stats import gaussian_kde
@@ -272,4 +285,22 @@ def density_map(ax, x1, x2, gridsize=120, bandwidth=0.15):
     density = kde(np.vstack([xx.ravel(), yy.ravel()])).reshape(xx.shape)
     density[np.hypot(xx, yy) > 1.0] = np.nan
 
-    return ax.pcolormesh(xx, yy, density, cmap=cmap, shading="auto", zorder=0)
+    vmax = np.nanpercentile(density, clip_percentile)
+    return ax.pcolormesh(xx, yy, density, cmap=cmap, shading="auto", zorder=0,
+                         vmin=0, vmax=vmax)
+
+
+#: Below this many simulated events a panel is a smoke test, not a result.
+MIN_MEANINGFUL_EVENTS = 200
+
+
+def warn_if_underpowered(n_events, label):
+    """Shout if a panel was generated from too few events to mean anything.
+
+    Low replicate counts run fast and produce panels that look finished, so it
+    is easy to leave a smoke-test artefact behind and mistake it for output.
+    """
+    if n_events < MIN_MEANINGFUL_EVENTS:
+        print(f"\n  *** WARNING: {label} generated from only {n_events} events."
+              f"\n  *** This is a smoke test, not a result. Re-run with more"
+              f" replicates before using these panels.\n")
