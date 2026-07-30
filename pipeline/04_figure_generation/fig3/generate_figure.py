@@ -50,12 +50,12 @@ def panel_a(table):
         events = table[np.isclose(table.mu, mu)]
         ax = axes[0, column]
 
-        for outcome, name in enumerate(("Dominance", "Mixture", "Restructuring")):
-            selection = events[events.outcome == outcome]
-            ax.scatter(selection.x1, selection.x2, s=3, linewidths=0,
-                       color=OUTCOME_COLORS[name], alpha=0.6)
+        density_map(ax, events.x1.to_numpy(dtype=float),
+                    events.x2.to_numpy(dtype=float))
 
         draw_similarity_boundaries(ax)
+        ax.set_xticks([0, 1])
+        ax.set_yticks([0, 1])
         ax.set_title(f"$\\mu$ = {mu}", fontsize=7, style="italic")
         if column == 0:
             ax.set_ylabel("Similarity(C,B)")
