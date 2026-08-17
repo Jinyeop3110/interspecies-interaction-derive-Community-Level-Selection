@@ -79,5 +79,17 @@ Repeating over independently sampled pools gives the simulated event set, which
 
 ## Raw sequencing reads
 
-Raw 16S reads are deposited separately from the processed tables; see the Data
-Availability statement in the manuscript for the accession.
+The raw demultiplexed 16S V4 fastq files are in the same Dryad deposit as the
+processed tables: **https://doi.org/10.5061/dryad.2z34tmq0z**
+
+You only need them to re-run step 1 of the provenance chain above. The figure
+scripts start from the processed tables and never touch the reads. To re-run
+DADA2, unpack the reads and point `COALESCENCE_FASTQ` at the directory:
+
+```bash
+export COALESCENCE_FASTQ=/path/to/demultiplexed_fastq
+Rscript pipeline/01_sequencing/Merging-SeqWorkflow_ForCoalescence.R
+```
+
+Read `pipeline/01_sequencing/README.md` first: it records three unresolved
+issues in that script, one of which changes the resulting ASV tables.
